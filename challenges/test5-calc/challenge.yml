@@ -1,0 +1,17 @@
+name: "Test 5 - Calcul Basique"
+category: "Test"
+description: |
+  Résolvez le calcul et accédez à la bonne URL.
+  
+  🔗 **Accéder au challenge** : http://test5.challenges.local
+  
+  💡 **Indice** : Modifiez l'URL avec votre réponse
+  
+value: 10
+type: "standard"
+state: "visible"
+flags:
+  - "ACE{test_challenge_5}"
+tags:
+  - "test"
+  - "misc"

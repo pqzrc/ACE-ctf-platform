@@ -33,7 +33,7 @@ def load(app):
             set_config('ctf_name', CTF_NAME)
             set_config('ctf_description', CTF_DESCRIPTION)
             set_config('user_mode', 'teams')
-            set_config('challenge_visibility', 'public')
+            set_config('challenge_visibility', 'private')
 
             existing_admin = Users.query.filter_by(email=ADMIN_EMAIL).first()
 

@@ -13,7 +13,6 @@ services:
       - DATABASE_URL=mysql+pymysql://ctfd:${MYSQL_PASSWORD}@db/ctfd
       - REDIS_URL=redis://cache:6379
 
-
     volumes:
       # Plugins
       - ./plugins/registration_sync:/opt/CTFd/CTFd/plugins/registration_sync
@@ -21,6 +20,10 @@ services:
       - ./plugins/auth_sync:/opt/CTFd/CTFd/plugins/auth_sync
       - ./plugins/room_display:/opt/CTFd/CTFd/plugins/room_display
       - ./plugins/disable_team_editing:/opt/CTFd/CTFd/plugins/disable_team_editing
+      - ./plugins/homepage_redirect:/opt/CTFd/CTFd/plugins/homepage_redirect
+      - ./plugins/disable_direct_auth:/opt/CTFd/CTFd/plugins/disable_direct_auth
+      - ./plugins/team_requirement_message:/opt/CTFd/CTFd/plugins/team_requirement_message
+      - ./plugins/disable_user_settings:/opt/CTFd/CTFd/plugins/disable_user_settings
 
       # Themes (optionnel)
       # NOTE: Le montage du volume themes écrase le thème core de CTFd
@@ -39,10 +42,10 @@ services:
 
     networks:
       - ctfd-internal
-      - ace-network  # Réseau partagé avec le site d'inscription
+      - ace-network # Réseau partagé avec le site d'inscription
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/healthcheck"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/healthcheck" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -88,9 +91,9 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
     ports:
-      - "8081:80"    # Changé pour éviter conflit avec nginx
-      - "8443:443"   # Changé pour éviter conflit
-      - "8082:8080"  # Traefik dashboard
+      - "8081:80" # Changé pour éviter conflit avec nginx
+      - "8443:443" # Changé pour éviter conflit
+      - "8082:8080" # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
@@ -100,33 +103,73 @@ services:
       - "traefik.http.routers.traefik.rule=Host(`traefik.ctf.local`)"
       - "traefik.http.routers.traefik.service=api@internal"
 
-  # ===== Challenges =====
+  # ===== 5 Test Challenges =====
 
-  challenge_test:
-    build: ./challenges/test/deploy
+  challenge_test1:
+    build: ./challenges/test1-static/deploy
     restart: always
     networks:
       - ctfd-challenges
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.test.rule=Host(`test.challenges.local`)"
-      - "traefik.http.services.test.loadbalancer.server.port=5000"
+      - "traefik.http.routers.test1.rule=Host(`test1.challenges.local`)"
+      - "traefik.http.services.test1.loadbalancer.server.port=80"
+
+  challenge_test2:
+    build: ./challenges/test2-source/deploy
+    restart: always
+    networks:
+      - ctfd-challenges
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.test2.rule=Host(`test2.challenges.local`)"
+      - "traefik.http.services.test2.loadbalancer.server.port=80"
+
+  challenge_test3:
+    build: ./challenges/test3-file/deploy
+    restart: always
+    networks:
+      - ctfd-challenges
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.test3.rule=Host(`test3.challenges.local`)"
+      - "traefik.http.services.test3.loadbalancer.server.port=80"
+
+  challenge_test4:
+    build: ./challenges/test4-form/deploy
+    restart: always
+    networks:
+      - ctfd-challenges
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.test4.rule=Host(`test4.challenges.local`)"
+      - "traefik.http.services.test4.loadbalancer.server.port=80"
+
+  challenge_test5:
+    build: ./challenges/test5-calc/deploy
+    restart: always
+    networks:
+      - ctfd-challenges
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.test5.rule=Host(`test5.challenges.local`)"
+      - "traefik.http.services.test5.loadbalancer.server.port=80"
 
 # Networks
 networks:
   ctfd-internal:
     driver: bridge
-    internal: true  # Pas d'accès internet pour la DB/Redis
+    internal: true # Pas d'accès internet pour la DB/Redis
 
   ctfd-challenges:
     driver: bridge
 
   ace-network:
     name: ace-website_ace-network
-    external: true  # Réseau créé par le site d'inscription ACE
+    external: true # Réseau créé par le site d'inscription ACE
     # Ce réseau permet à CTFd de communiquer avec backend:5000
 
-# Volumes
+    # Volumes
 volumes:
   ctfd_db:
     driver: local

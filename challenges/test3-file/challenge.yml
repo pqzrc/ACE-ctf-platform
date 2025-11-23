@@ -1,0 +1,17 @@
+name: "Test 3 - Fichier Texte"
+category: "Test"
+description: |
+  Le flag est dans un fichier texte accessible.
+  
+  🔗 **Accéder au challenge** : http://test3.challenges.local
+  
+  💡 **Indice** : Ajoutez /flag.txt à l'URL
+  
+value: 10
+type: "standard"
+state: "visible"
+flags:
+  - "ACE{test_challenge_3}"
+tags:
+  - "test"
+  - "web"

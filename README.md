@@ -177,6 +177,7 @@ Gère l'authentification SSO avec tokens JWT.
 **Fonctionnalités** :
 - Validation des tokens JWT
 - Création/mise à jour utilisateurs
+- Synchronisation du profil (Username, Affiliation)
 - Attribution automatique des équipes
 - Gestion des capitaines d'équipe
 
@@ -207,6 +208,25 @@ Bloque la création manuelle d'équipes dans CTFd.
 Désactive la route `/setup` après la configuration initiale.
 
 **Sécurité** : Empêche la reconfiguration non autorisée de CTFd.
+
+### disable_direct_auth
+Bloque l'accès direct aux pages de connexion/inscription CTFd (`/login`, `/register`).
+- Redirige vers une page d'information stylisée ACE
+- Force l'utilisation du SSO via le site d'inscription
+
+### disable_user_settings
+Empêche la modification du profil utilisateur dans CTFd (`/settings`).
+- Redirige vers le site d'inscription pour toute modification
+- Assure la cohérence des données (Source unique de vérité : Site d'inscription)
+
+### homepage_redirect
+Remplace la page d'accueil par défaut de CTFd.
+- Affiche une landing page stylisée ACE
+- Adapte le contenu selon l'état de connexion
+
+### team_requirement_message
+Intercepte l'accès aux challenges si l'utilisateur n'a pas d'équipe.
+- Affiche un message clair invitant à rejoindre/créer une équipe sur le site d'inscription
 
 ### initial_setup
 Configure automatiquement CTFd au premier démarrage.
