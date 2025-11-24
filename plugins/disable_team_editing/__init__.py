@@ -81,6 +81,21 @@ def load(app):
                     var parent = captainSelect.closest('.form-group');
                     if (parent) parent.style.display = 'none';
                 }
+
+                // Hide Invite Link section (aggressive search)
+                var labels = document.querySelectorAll('label');
+                labels.forEach(function(label) {
+                    if (label.textContent.includes('Invite Link') || label.textContent.includes('Lien d\\'invitation')) {
+                        var parent = label.closest('.form-group');
+                        if (parent) parent.style.display = 'none';
+                    }
+                });
+
+                var inputs = document.querySelectorAll('input[value*="/invite"]');
+                inputs.forEach(function(input) {
+                    var parent = input.closest('.form-group');
+                    if (parent) parent.style.display = 'none';
+                });
                 
                 // Add info message
                 var container = document.querySelector('.jumbotron .container');
