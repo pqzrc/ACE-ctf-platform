@@ -31,15 +31,27 @@ def load(app):
             if '/api/v1/teams/' in request.path:
                 abort(403, description="Team editing is disabled. Please use the registration site to manage your team.")
 
-        # Block team join/leave endpoints for non-admins
+        # Block team join/leave/invite/disband endpoints for non-admins
         if request.method == 'POST':
             blocked_paths = [
                 '/teams/join',
                 '/teams/new',
+                '/teams/invite',
+                '/api/v1/teams/invite',
             ]
             for path in blocked_paths:
                 if request.path.startswith(path):
                     abort(403, description="Team management is disabled. Teams are created through the registration site.")
+
+        # Block specific API actions
+        if request.method in ['POST', 'PATCH', 'DELETE']:
+            # Block captain change
+            if '/captain' in request.path:
+                abort(403, description="Captain management is disabled. Please use the registration site.")
+            
+            # Block team disband/delete
+            if '/api/v1/teams/' in request.path and request.method == 'DELETE':
+                 abort(403, description="Team deletion is disabled. Please use the registration site.")
 
     # Add a custom message template
     @app.context_processor
