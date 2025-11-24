@@ -53,15 +53,49 @@ def load(app):
             if '/api/v1/teams/' in request.path and request.method == 'DELETE':
                  abort(403, description="Team deletion is disabled. Please use the registration site.")
 
-    # Add a custom message template
-    @app.context_processor
-    def inject_team_edit_message():
-        """Inject message about team editing"""
-        registration_url = app.config.get('REGISTRATION_SITE_URL', 'http://localhost:3000')
-        return {
-            'team_edit_disabled': True,
-            'team_edit_message': 'Team information is managed through the registration site.',
-            'registration_site_url': registration_url
-        }
+    # Inject script into HTML responses
+    @app.after_request
+    def inject_script(response):
+        if request.path.startswith('/teams') and response.content_type == 'text/html; charset=utf-8':
+            registration_url = app.config.get('FRONTEND_URL', 'http://localhost:3000')
+            custom_script = """
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Hide Edit Team button
+                var editBtn = document.querySelector('a[href*="/teams/"][href*="/settings"]');
+                if (editBtn) editBtn.style.display = 'none';
+                
+                // Hide Invite button
+                var inviteBtn = document.querySelector('#team-invite-button');
+                if (inviteBtn) inviteBtn.style.display = 'none';
+                
+                // Hide Disband button
+                var disbandBtn = document.querySelector('#team-disband-button');
+                if (disbandBtn) disbandBtn.style.display = 'none';
+                
+                // Hide Captain select
+                var captainSelect = document.querySelector('#team-captain-select');
+                if (captainSelect) {
+                    captainSelect.disabled = true;
+                    var parent = captainSelect.closest('.form-group');
+                    if (parent) parent.style.display = 'none';
+                }
+                
+                // Add info message
+                var container = document.querySelector('.jumbotron .container');
+                if (container && !document.getElementById('team-lock-msg')) {
+                    var msg = document.createElement('div');
+                    msg.id = 'team-lock-msg';
+                    msg.className = 'alert alert-info mt-3';
+                    msg.innerHTML = '<strong>Note:</strong> La gestion d\\'équipe (nom, membres, capitaine) se fait uniquement sur le <a href="REGISTRATION_URL" target="_blank">site d\\'inscription</a>.';
+                    container.appendChild(msg);
+                }
+            });
+            </script>
+            """.replace('REGISTRATION_URL', registration_url)
+            
+            response.set_data(response.get_data(as_text=True).replace('</body>', custom_script + '</body>'))
+            
+        return response
 
     print("[Plugin] disable_team_editing loaded - Team editing restricted to admins only")
