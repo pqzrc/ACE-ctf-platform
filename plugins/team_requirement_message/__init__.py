@@ -1,5 +1,6 @@
 from flask import render_template_string, request
 from CTFd.utils.user import get_current_user, get_current_team, authed
+import os
 
 
 TEAM_REQUIRED_HTML = """
