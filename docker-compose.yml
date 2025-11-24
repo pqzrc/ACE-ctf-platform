@@ -84,7 +84,7 @@ services:
   # Traefik (Reverse Proxy pour les challenges)
   # Note: En production, Apache gère le SSL et proxy vers Traefik sur le port 8081
   traefik:
-    image: traefik:v3.1
+    image: traefik:latest
     restart: always
     command:
       # API Dashboard
