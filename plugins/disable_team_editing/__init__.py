@@ -11,13 +11,17 @@ from CTFd.utils.user import is_admin
 
 
 import os
+from jinja2 import FileSystemLoader
 
 def load(app):
     """Plugin load function"""
     
     # Register the templates directory to override core templates
     plugin_templates_path = os.path.join(os.path.dirname(__file__), 'templates')
-    app.jinja_loader.searchpath.insert(0, plugin_templates_path)
+    
+    # Create a FileSystemLoader for our plugin templates and insert it first
+    plugin_loader = FileSystemLoader(plugin_templates_path)
+    app.jinja_loader.loaders.insert(0, plugin_loader)
 
     # Override team edit routes to prevent modifications
     @app.before_request
