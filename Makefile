@@ -125,3 +125,25 @@ fresh-all: ## Fresh start TOTAL (CTFd + site d'inscription)
 	else \
 		echo "✗ Annulé"; \
 	fi
+
+import-challenges: ## Importer les challenges dans CTFd
+	@echo "📦 Import des challenges dans CTFd"
+	@echo ""
+	@if [ -z "$$CTFD_TOKEN" ]; then \
+		echo "❌ Erreur: Variable CTFD_TOKEN non définie"; \
+		echo ""; \
+		echo "Pour obtenir un token:"; \
+		echo "  1. Connectez-vous à CTFd en tant qu'admin"; \
+		echo "  2. Allez dans Settings > Access Tokens"; \
+		echo "  3. Créez un token avec les permissions admin"; \
+		echo "  4. Exportez: export CTFD_TOKEN='votre-token'"; \
+		echo "  5. Relancez: make import-challenges"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Token CTFd: $$CTFD_TOKEN"
+	@echo "URL CTFd: $${CTFD_URL:-http://localhost:8000}"
+	@echo ""
+	@CTFD_URL=$${CTFD_URL:-http://localhost:8000} python3 scripts/import_challenges.py
+	@echo ""
+	@echo "✅ Import terminé"

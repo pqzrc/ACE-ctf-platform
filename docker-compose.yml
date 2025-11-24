@@ -112,7 +112,7 @@ services:
       - ctfd-challenges
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.test1.rule=Host(`test1.challenges.local`)"
+      - "traefik.http.routers.test1.rule=Host(`test1.challenges.vizyondijital.fr`)"
       - "traefik.http.services.test1.loadbalancer.server.port=80"
 
   challenge_test2:
@@ -122,7 +122,7 @@ services:
       - ctfd-challenges
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.test2.rule=Host(`test2.challenges.local`)"
+      - "traefik.http.routers.test2.rule=Host(`test2.challenges.vizyondijital.fr`)"
       - "traefik.http.services.test2.loadbalancer.server.port=80"
 
   challenge_test3:
@@ -132,7 +132,7 @@ services:
       - ctfd-challenges
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.test3.rule=Host(`test3.challenges.local`)"
+      - "traefik.http.routers.test3.rule=Host(`test3.challenges.vizyondijital.fr`)"
       - "traefik.http.services.test3.loadbalancer.server.port=80"
 
   challenge_test4:
@@ -142,7 +142,7 @@ services:
       - ctfd-challenges
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.test4.rule=Host(`test4.challenges.local`)"
+      - "traefik.http.routers.test4.rule=Host(`test4.challenges.vizyondijital.fr`)"
       - "traefik.http.services.test4.loadbalancer.server.port=80"
 
   challenge_test5:
@@ -152,7 +152,7 @@ services:
       - ctfd-challenges
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.test5.rule=Host(`test5.challenges.local`)"
+      - "traefik.http.routers.test5.rule=Host(`test5.challenges.vizyondijital.fr`)"
       - "traefik.http.services.test5.loadbalancer.server.port=80"
 
 # Networks
