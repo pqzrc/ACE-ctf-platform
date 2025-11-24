@@ -81,7 +81,7 @@ services:
 
   # Traefik (Reverse Proxy pour les challenges)
   traefik:
-    image: traefik:v3.2
+    image: traefik:v3.1
     restart: always
     command:
       - "--api.dashboard=true"
