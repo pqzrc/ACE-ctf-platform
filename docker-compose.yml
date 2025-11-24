@@ -82,31 +82,38 @@ services:
       - ctfd-internal
 
   # Traefik (Reverse Proxy pour les challenges)
+  # Note: En production, Apache gère le SSL et proxy vers Traefik sur le port 8081
   traefik:
     image: traefik:v3.1
     restart: always
     command:
+      # API Dashboard
       - "--api.dashboard=true"
+      - "--api.insecure=true"
+
+      # Docker provider
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=ctfd-challenges"
-      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.network=ace-ctf-platform_ctfd-challenges"
+
+      # Entrypoints (HTTP only, SSL géré par Apache en production)
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
+
+      # Logging
+      - "--log.level=INFO"
+      - "--accesslog=true"
     ports:
-      - "8081:80" # Changé pour éviter conflit avec nginx
-      - "8443:443" # Changé pour éviter conflit
-      - "8082:8080" # Traefik dashboard
-    environment:
-      - DOCKER_API_VERSION=1.44
+      - "8081:80"    # Challenges HTTP (Apache proxy en production)
+      - "8082:8080"  # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - ctfd-challenges
+    # Note: Ne pas définir DOCKER_API_VERSION, laisser Traefik détecter automatiquement
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.ctf.local`)"
-      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
 
   # ===== 5 Test Challenges =====
 
@@ -118,7 +125,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.test1.rule=Host(`test1.challenges.vizyondijital.fr`)"
+      - "traefik.http.routers.test1.entrypoints=web"
       - "traefik.http.services.test1.loadbalancer.server.port=80"
+      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
 
   challenge_test2:
     build: ./challenges/test2-source/deploy
@@ -128,7 +137,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.test2.rule=Host(`test2.challenges.vizyondijital.fr`)"
+      - "traefik.http.routers.test2.entrypoints=web"
       - "traefik.http.services.test2.loadbalancer.server.port=80"
+      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
 
   challenge_test3:
     build: ./challenges/test3-file/deploy
@@ -138,7 +149,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.test3.rule=Host(`test3.challenges.vizyondijital.fr`)"
+      - "traefik.http.routers.test3.entrypoints=web"
       - "traefik.http.services.test3.loadbalancer.server.port=80"
+      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
 
   challenge_test4:
     build: ./challenges/test4-form/deploy
@@ -148,7 +161,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.test4.rule=Host(`test4.challenges.vizyondijital.fr`)"
+      - "traefik.http.routers.test4.entrypoints=web"
       - "traefik.http.services.test4.loadbalancer.server.port=80"
+      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
 
   challenge_test5:
     build: ./challenges/test5-calc/deploy
@@ -158,7 +173,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.test5.rule=Host(`test5.challenges.vizyondijital.fr`)"
+      - "traefik.http.routers.test5.entrypoints=web"
       - "traefik.http.services.test5.loadbalancer.server.port=80"
+      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
 
 # Networks
 networks:

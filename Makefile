@@ -1,12 +1,25 @@
-.PHONY: help setup start stop restart logs build rebuild clean fresh fresh-all status shell test
+.PHONY: help setup start stop restart logs build rebuild clean fresh fresh-all status shell test deploy-prod redeploy update vps-fix vps-start vps-stop vps-logs vps-status
 
 # Variables
 DOCKER_COMPOSE = docker compose
 
 help: ## Afficher l'aide
-	@echo "Commandes disponibles pour CTFd ACE 2025:"
+	@echo "=========================================="
+	@echo "CTFd ACE 2025 - Commandes disponibles"
+	@echo "=========================================="
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	@echo "📦 Développement local:"
+	@grep -E '^(setup|start|stop|restart|logs|logs-all|status|build|rebuild|shell|test|clean|fresh|fresh-all):.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "🚀 Déploiement production:"
+	@grep -E '^(deploy-prod|redeploy|update):.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "🔧 Gestion VPS (à distance):"
+	@grep -E '^vps-.*:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "📚 Challenges:"
+	@grep -E '^import-challenges:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
 
 setup: ## Créer le fichier .env depuis .env.example
 	@if [ ! -f .env ]; then \
@@ -147,3 +160,99 @@ import-challenges: ## Importer les challenges dans CTFd
 	@CTFD_URL=$${CTFD_URL:-http://localhost:8000} python3 scripts/import_challenges.py
 	@echo ""
 	@echo "✅ Import terminé"
+
+# ==== Commandes de déploiement ====
+
+deploy-prod: ## Déploiement complet sur le VPS (première installation)
+	@echo "🚀 Déploiement production ACE CTF Platform"
+	@echo "⚠️  Ce script doit être exécuté sur le VPS"
+	@bash deployment/deploy.sh
+
+redeploy: ## Redéploiement rapide (mise à jour du code)
+	@echo "🔄 Redéploiement rapide..."
+	$(DOCKER_COMPOSE) down
+	$(DOCKER_COMPOSE) pull 2>/dev/null || true
+	$(DOCKER_COMPOSE) build --no-cache ctfd
+	$(DOCKER_COMPOSE) up -d
+	@echo ""
+	@echo "✅ Redéploiement terminé"
+	@echo "Logs: make logs"
+
+update: ## Mise à jour depuis Git + redeploy
+	@echo "📥 Mise à jour depuis Git..."
+	git pull
+	@echo ""
+	@make redeploy
+
+# ==== Commandes VPS (à distance) ====
+
+VPS_HOST = VPS-VZ2
+VPS_DIR = /opt/ace-ctf-platform
+VPS_WEBSITE_DIR = /opt/ace-website
+
+vps-fix: ## Corriger la config .env sur le VPS et redémarrer
+	@echo "🔧 Correction de la configuration VPS..."
+	@echo "→ Correction du fichier .env..."
+	@ssh $(VPS_HOST) "cd $(VPS_DIR) && \
+		sed -i '/^FRONTEND_URL=/d' .env && \
+		echo 'FRONTEND_URL=https://ace.vizyondijital.fr' >> .env && \
+		echo '✓ FRONTEND_URL corrigé'"
+	@echo "→ Vérification des secrets..."
+	@ssh $(VPS_HOST) "cd $(VPS_DIR) && \
+		if grep -q 'CHANGEME' .env; then \
+			echo '⚠️  ATTENTION: Le fichier .env contient encore des valeurs CHANGEME'; \
+			grep 'CHANGEME' .env; \
+		else \
+			echo '✓ Pas de CHANGEME trouvé'; \
+		fi"
+	@echo ""
+	@echo "✅ Configuration corrigée"
+
+vps-start: ## Démarrer tous les services sur le VPS
+	@echo "🚀 Démarrage des services sur le VPS..."
+	@echo "→ Démarrage ACE-Website..."
+	@ssh $(VPS_HOST) "cd $(VPS_WEBSITE_DIR) && docker compose up -d"
+	@echo "→ Attente 10 secondes..."
+	@sleep 10
+	@echo "→ Démarrage ACE-CTF-Platform..."
+	@ssh $(VPS_HOST) "cd $(VPS_DIR) && docker compose up -d"
+	@echo ""
+	@echo "✅ Services démarrés"
+	@echo "→ Vérification: make vps-status"
+
+vps-stop: ## Arrêter tous les services sur le VPS
+	@echo "🛑 Arrêt des services sur le VPS..."
+	@ssh $(VPS_HOST) "cd $(VPS_DIR) && docker compose down"
+	@ssh $(VPS_HOST) "cd $(VPS_WEBSITE_DIR) && docker compose down"
+	@echo "✅ Services arrêtés"
+
+vps-restart: ## Redémarrer tous les services sur le VPS
+	@make vps-stop
+	@sleep 5
+	@make vps-start
+
+vps-logs: ## Voir les logs CTFd sur le VPS
+	@echo "📋 Logs CTFd (Ctrl+C pour quitter)..."
+	@ssh $(VPS_HOST) "cd $(VPS_DIR) && docker compose logs -f --tail=100 ctfd"
+
+vps-status: ## Voir l'état des services sur le VPS
+	@echo "📊 État des services sur le VPS"
+	@echo ""
+	@echo "=== ACE-Website ==="
+	@ssh $(VPS_HOST) "cd $(VPS_WEBSITE_DIR) && docker compose ps"
+	@echo ""
+	@echo "=== ACE-CTF-Platform ==="
+	@ssh $(VPS_HOST) "cd $(VPS_DIR) && docker compose ps"
+	@echo ""
+	@echo "=== Réseaux Docker ==="
+	@ssh $(VPS_HOST) "docker network ls | grep -E '(ace-website_ace-network|ctfd)'"
+
+vps-rebuild: ## Rebuild et redémarrer CTFd sur le VPS
+	@echo "🔨 Rebuild CTFd sur le VPS..."
+	@ssh $(VPS_HOST) "cd $(VPS_DIR) && docker compose down && docker compose build --no-cache ctfd && docker compose up -d"
+	@echo "✅ Rebuild terminé"
+
+vps-update: ## Pull depuis Git et rebuild sur le VPS
+	@echo "📥 Mise à jour VPS depuis Git..."
+	@ssh $(VPS_HOST) "cd $(VPS_DIR) && git pull"
+	@make vps-rebuild

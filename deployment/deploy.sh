@@ -38,6 +38,21 @@ fi
 if ! docker network ls | grep -q "ace-website_ace-network"; then
     echo -e "${RED}❌ Le réseau Docker ace-website_ace-network n'existe pas${NC}"
     echo -e "${YELLOW}Vous devez déployer ACE-Website EN PREMIER${NC}"
+    echo ""
+    echo -e "${BLUE}Pour démarrer ACE-Website :${NC}"
+    echo "  cd /opt/ace-website"
+    echo "  docker compose up -d"
+    exit 1
+fi
+
+# Vérifier que le conteneur backend de ACE-Website est en cours d'exécution
+if ! docker ps | grep -q "backend"; then
+    echo -e "${RED}❌ Le conteneur backend de ACE-Website n'est pas démarré${NC}"
+    echo -e "${YELLOW}CTFd a besoin du backend pour l'authentification SSO${NC}"
+    echo ""
+    echo -e "${BLUE}Pour démarrer ACE-Website :${NC}"
+    echo "  cd /opt/ace-website"
+    echo "  docker compose up -d"
     exit 1
 fi
 
@@ -50,6 +65,13 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 echo -e "${YELLOW}[2/7] Répertoire projet : $PROJECT_DIR${NC}"
+
+# Vérifier qu'on est bien sur le VPS en production
+if [ ! -d "/opt/ace-website" ]; then
+    echo -e "${RED}❌ Ce script doit être exécuté sur le VPS de production${NC}"
+    echo -e "${YELLOW}Répertoire /opt/ace-website non trouvé${NC}"
+    exit 1
+fi
 
 # ============================================
 # 3. Activer les modules Apache
