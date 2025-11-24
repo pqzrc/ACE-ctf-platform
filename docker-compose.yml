@@ -89,6 +89,7 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=ctfd-challenges"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.apiVersion=1.44"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
     ports:
