@@ -56,7 +56,8 @@ def load(app):
     # Inject script into HTML responses
     @app.after_request
     def inject_script(response):
-        if request.path.startswith('/teams') and response.content_type == 'text/html; charset=utf-8':
+        # Check for both /teams (list/public profile) and /team (private profile)
+        if (request.path.startswith('/teams') or request.path == '/team') and response.content_type == 'text/html; charset=utf-8':
             registration_url = app.config.get('FRONTEND_URL', 'http://localhost:3000')
             custom_script = """
             <script>
