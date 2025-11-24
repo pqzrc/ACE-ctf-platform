@@ -13,7 +13,7 @@ services:
       - DATABASE_URL=mysql+pymysql://ctfd:${MYSQL_PASSWORD}@db/ctfd
       - REDIS_URL=redis://cache:6379
       - FRONTEND_URL=${FRONTEND_URL}
-      - REGISTRATION_SITE_URL=${FRONTEND_URL}
+      - REGISTRATION_SITE_URL=${REGISTRATION_SITE_URL}
 
     volumes:
       # Plugins
@@ -103,8 +103,8 @@ services:
       - "--log.level=INFO"
       - "--accesslog=true"
     ports:
-      - "8081:80"    # Challenges HTTP (Apache proxy en production)
-      - "8082:8080"  # Traefik dashboard
+      - "8081:80" # Challenges HTTP (Apache proxy en production)
+      - "8082:8080" # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
