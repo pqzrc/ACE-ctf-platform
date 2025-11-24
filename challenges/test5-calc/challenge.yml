@@ -2,11 +2,11 @@ name: "Test 5 - Calcul Basique"
 category: "Test"
 description: |
   Résolvez le calcul et accédez à la bonne URL.
-  
-  🔗 **Accéder au challenge** : http://test5.challenges.local
-  
+
+  🔗 **Accéder au challenge** : https://test5.challenges.vizyondijital.fr
+
   💡 **Indice** : Modifiez l'URL avec votre réponse
-  
+
 value: 10
 type: "standard"
 state: "visible"

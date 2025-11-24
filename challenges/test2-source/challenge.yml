@@ -2,11 +2,11 @@ name: "Test 2 - Code Source"
 category: "Test"
 description: |
   Le flag est caché dans le code source de la page.
-  
-  🔗 **Accéder au challenge** : http://test2.challenges.local
-  
+
+  🔗 **Accéder au challenge** : https://test2.challenges.vizyondijital.fr
+
   💡 **Indice** : Ctrl+U pour voir le code source
-  
+
 value: 10
 type: "standard"
 state: "visible"

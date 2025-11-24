@@ -2,9 +2,9 @@ name: "Test 1 - Flag Statique"
 category: "Test"
 description: |
   Challenge de test - Le flag est affiché directement sur la page.
-  
-  🔗 **Accéder au challenge** : http://test1.challenges.local
-  
+
+  🔗 **Accéder au challenge** : https://test1.challenges.vizyondijital.fr
+
 value: 10
 type: "standard"
 state: "visible"
