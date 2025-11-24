@@ -10,8 +10,14 @@ from CTFd.utils.decorators import authed_only
 from CTFd.utils.user import is_admin
 
 
+import os
+
 def load(app):
     """Plugin load function"""
+    
+    # Register the templates directory to override core templates
+    plugin_templates_path = os.path.join(os.path.dirname(__file__), 'templates')
+    app.jinja_loader.searchpath.insert(0, plugin_templates_path)
 
     # Override team edit routes to prevent modifications
     @app.before_request
