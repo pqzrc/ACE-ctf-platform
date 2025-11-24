@@ -81,7 +81,7 @@ services:
 
   # Traefik (Reverse Proxy pour les challenges)
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.2
     restart: always
     command:
       - "--api.dashboard=true"
@@ -95,8 +95,6 @@ services:
       - "8081:80" # Changé pour éviter conflit avec nginx
       - "8443:443" # Changé pour éviter conflit
       - "8082:8080" # Traefik dashboard
-    environment:
-      - DOCKER_API_VERSION=1.44
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
