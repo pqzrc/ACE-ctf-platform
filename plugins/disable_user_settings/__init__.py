@@ -5,6 +5,7 @@ Blocks user profile editing and redirects to registration site
 
 from flask import render_template_string, request, redirect
 from CTFd.utils.user import authed, is_admin
+import os
 
 
 USER_SETTINGS_BLOCKED_HTML = """
@@ -141,7 +142,7 @@ def load(app):
                 return  # Let CTFd handle login redirect
             
             # Show custom message
-            registration_url = app.config.get('FRONTEND_URL', 'http://localhost:3000')
+            registration_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
             return render_template_string(
                 USER_SETTINGS_BLOCKED_HTML,
                 registration_url=registration_url

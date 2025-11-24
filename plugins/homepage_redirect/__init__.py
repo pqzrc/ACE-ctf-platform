@@ -6,6 +6,7 @@ Shows a beautiful homepage with CTFd navbar
 from flask import redirect, render_template_string, request
 from CTFd.utils.user import authed
 from CTFd.utils import config
+import os
 
 
 HOMEPAGE_HTML = """
@@ -195,7 +196,7 @@ def load(app):
         """Override homepage with custom page"""
         if request.path == '/' and request.method == 'GET':
             is_authed = authed()
-            frontend_url = app.config.get('FRONTEND_URL', 'http://localhost:3000')
+            frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
             
             return render_template_string(
                 HOMEPAGE_HTML,
