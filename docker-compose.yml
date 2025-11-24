@@ -12,6 +12,8 @@ services:
       # Variables calculées à partir du .env
       - DATABASE_URL=mysql+pymysql://ctfd:${MYSQL_PASSWORD}@db/ctfd
       - REDIS_URL=redis://cache:6379
+      - FRONTEND_URL=${FRONTEND_URL}
+      - REGISTRATION_SITE_URL=${FRONTEND_URL}
 
     volumes:
       # Plugins
@@ -81,7 +83,7 @@ services:
 
   # Traefik (Reverse Proxy pour les challenges)
   traefik:
-    image: traefik:v2.11
+    image: traefik:v3.1
     restart: always
     command:
       - "--api.dashboard=true"

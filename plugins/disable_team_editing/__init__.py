@@ -67,7 +67,7 @@ def load(app):
     @app.context_processor
     def inject_team_edit_message():
         """Inject message about team editing"""
-        registration_url = app.config.get('FRONTEND_URL', 'http://localhost:3000')
+        registration_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
         return {
             'team_edit_disabled': True,
             'team_edit_message': 'Team information is managed through the registration site.',
