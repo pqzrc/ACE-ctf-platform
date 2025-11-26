@@ -1,3 +1,5 @@
+name: ace-ctf
+
 services:
   # CTFd Application
   ctfd:
@@ -26,6 +28,7 @@ services:
       - ./plugins/disable_direct_auth:/opt/CTFd/CTFd/plugins/disable_direct_auth
       - ./plugins/team_requirement_message:/opt/CTFd/CTFd/plugins/team_requirement_message
       - ./plugins/disable_user_settings:/opt/CTFd/CTFd/plugins/disable_user_settings
+      - ./plugins/empty_challenges_message:/opt/CTFd/CTFd/plugins/empty_challenges_message
 
       # Themes (optionnel)
       # NOTE: Le montage du volume themes écrase le thème core de CTFd

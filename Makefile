@@ -1,9 +1,10 @@
-.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell import-challenges deploy pull push
+.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell import-challenges deploy pull push dev dev-stop dev-restart dev-logs
 
 # ACE CTFd Platform - Makefile
 # Usage: make <commande>
 
 DOCKER_COMPOSE = docker compose
+DOCKER_COMPOSE_DEV = docker compose -f docker-compose.dev.yml
 
 help: ## Afficher l'aide
 	@echo ""
@@ -15,7 +16,34 @@ help: ## Afficher l'aide
 
 # --- Commandes de base ---
 
-start: ## Démarrer tous les services
+dev: ## Démarrer l'environnement de développement
+	@echo "🚀 Démarrage de CTFd ACE (mode développement)..."
+	$(DOCKER_COMPOSE_DEV) up -d
+	@echo ""
+	@echo "✅ Services démarrés (mode développement):"
+	@echo "  🏆 CTFd:      http://localhost:8000"
+	@echo ""
+	@echo "📝 Utilise .env.dev avec JWT_SECRET synchronisé"
+	@echo ""
+	@echo "Commandes utiles:"
+	@echo "  Logs:     make dev-logs"
+	@echo "  Arrêter:  make dev-stop"
+	@echo ""
+
+dev-stop: ## Arrêter l'environnement de développement
+	@echo "🛑 Arrêt de l'environnement de développement..."
+	$(DOCKER_COMPOSE_DEV) down
+	@echo "✅ Services arrêtés"
+
+dev-restart: ## Redémarrer l'environnement de développement
+	@echo "🔄 Redémarrage de l'environnement de développement..."
+	$(DOCKER_COMPOSE_DEV) restart
+	@echo "✅ Services redémarrés"
+
+dev-logs: ## Voir les logs en mode développement
+	$(DOCKER_COMPOSE_DEV) logs -f --tail=100
+
+start: ## Démarrer tous les services (production)
 	@echo "Démarrage de CTFd ACE..."
 	$(DOCKER_COMPOSE) up -d
 	@echo ""
@@ -244,7 +272,9 @@ users-count: ## Compter les utilisateurs
 
 scoreboard: ## Afficher le scoreboard actuel
 	@echo "Scoreboard CTFd (Top 10):"
-	$(DOCKER_COMPOSE) exec db mysql -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd -e "SELECT name, score FROM teams ORDER BY score DESC LIMIT 10;"
+	@$(DOCKER_COMPOSE) exec db mysql -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd -e "SELECT name, score FROM teams ORDER BY score DESC LIMIT 10;"
+
+leaderboard: scoreboard ## Alias de scoreboard
 
 health-check: ## Vérifier la santé du système
 	@echo "Health check complet"

@@ -89,7 +89,7 @@ RUN pip install flask
 CMD ["python", "app.py"]
 ```
 
-### 4. Ajouter au docker-compose.yml
+### 4. Ajouter au docker compose.yml
 
 ```yaml
   challenge_mon_challenge:
@@ -178,7 +178,7 @@ docker network ls | grep ace-website_ace-network
 # Trouver le processus
 sudo lsof -i :8000
 
-# Ou changer le port dans docker-compose.yml
+# Ou changer le port dans docker compose.yml
 # "8001:8000" au lieu de "8000:8000"
 ```
 

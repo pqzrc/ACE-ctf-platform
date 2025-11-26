@@ -254,7 +254,7 @@ ACE-ctf-platform/
 │   ├── disable_setup/
 │   └── initial_setup/
 ├── scripts/               # Scripts utilitaires
-├── docker-compose.yml     # Configuration services
+├── docker compose.yml     # Configuration services
 ├── .env.example          # Template variables d'environnement
 ├── Makefile              # Commandes make
 ├── README.md             # Ce fichier

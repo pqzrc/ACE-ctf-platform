@@ -5,5 +5,16 @@ __pycache__/
 .Python
 env/
 venv/
+
+# Environment files
 .env
+.env.dev
+.env.production
+*.env.local
+
+# Docker files
+docker-compose.dev.yml
+docker-compose.*.dev.yml
+
+# OS files
 .DS_Store

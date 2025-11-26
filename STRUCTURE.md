@@ -21,7 +21,7 @@ ACE-ctf-platform/
 │           ├── Dockerfile
 │           └── app.py
 │
-├── docker-compose.yml         # Configuration services
+├── docker compose.yml         # Configuration services
 ├── Dockerfile                 # Image CTFd personnalisée
 ├── .env.example              # Template config
 ├── Makefile                  # Commandes simplifiées
@@ -35,7 +35,7 @@ ACE-ctf-platform/
 
 | Fichier | Description |
 |---------|-------------|
-| `docker-compose.yml` | Services Docker (CTFd, MariaDB, Redis, Traefik, challenges) |
+| `docker compose.yml` | Services Docker (CTFd, MariaDB, Redis, Traefik, challenges) |
 | `Dockerfile` | Image CTFd avec plugins et dépendances (requests, APScheduler, PyJWT) |
 | `.env.example` | Variables d'environnement (JWT_SECRET, passwords, URLs) |
 | `Makefile` | Commandes simplifiées (start, stop, logs, etc.) |
@@ -214,7 +214,7 @@ if __name__ == '__main__':
 
 ### 4. Docker Compose
 
-Ajouter dans `docker-compose.yml` :
+Ajouter dans `docker compose.yml` :
 
 ```yaml
   challenge_mon_challenge:
