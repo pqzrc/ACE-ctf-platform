@@ -122,7 +122,7 @@ def load(app):
                     'firstName': payload.get('firstName', ''),
                     'lastName': payload.get('lastName', ''),
                     'username': payload.get('username'),
-                    'affiliation': payload.get('affiliation'),
+                    'affiliation': payload.get('composante'),
                     'isAdmin': payload.get('isAdmin', False),
                     'teamId': payload.get('teamId')
                 }
@@ -187,12 +187,12 @@ def load(app):
                     verified=True,
                     hidden=False,
                     banned=False,
-                    affiliation=user_data.get('affiliation'),
+                    affiliation=user_data.get('composante'),
                     website=None
                 )
                 db.session.add(user)
                 db.session.commit()
-                logger.info(f"Utilisateur créé via SSO: {email} (name={display_name}, affiliation={user_data.get('affiliation')}, team_id={user.team_id})")
+                logger.info(f"Utilisateur créé via SSO: {email} (name={display_name}, affiliation={user_data.get('composante')}, team_id={user.team_id})")
             else:
                 needs_update = False
                 
@@ -216,7 +216,7 @@ def load(app):
                     needs_update = True
                 
                 # Update affiliation if changed
-                new_affiliation = user_data.get('affiliation')
+                new_affiliation = user_data.get('composante')
                 if new_affiliation != user.affiliation:
                     logger.info(f"Mise à jour de l'affiliation {email}: {user.affiliation} -> {new_affiliation}")
                     user.affiliation = new_affiliation
