@@ -67,7 +67,7 @@ SECRET = """
             border-radius: 10px;
         }
         .flag {
-            background: #fc10ca;
+            background: #D53F8C;
             padding: 20px;
             border-radius: 5px;
             font-size: 1.5em;
