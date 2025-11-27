@@ -62,10 +62,10 @@ def load(app):
                 
                 {% if status == 'before' %}
                     <h2 class="mb-3">L'événement n'a pas encore commencé</h2>
-                    <p class="text-muted mb-4">Le classement sera disponible après la fin de l'épreuve</p>
+                    <p class="text-muted mb-4">Début de l'épreuve dans :</p>
                 {% else %}
                     <h2 class="mb-3">Le classement sera disponible après l'épreuve</h2>
-                    <p class="text-muted mb-4">Concentrez-vous sur les énigmes !</p>
+                    <p class="text-muted mb-4">Fin de l'épreuve dans :</p>
                 {% endif %}
                 
                 <div class="row mt-5 justify-content-center" id="countdown">
@@ -106,32 +106,36 @@ def load(app):
 </div>
 
 <script>
-    const targetTime = new Date('{{ end_time }}').getTime();
-    
+    const status = '{{ status }}';
+    const startTime = new Date('{{ start_time }}').getTime();
+    const endTime = new Date('{{ end_time }}').getTime();
+
     function updateCountdown() {
         const now = new Date().getTime();
+        // Before event: count to start, during event: count to end
+        const targetTime = status === 'before' ? startTime : endTime;
         const diff = targetTime - now;
-        
+
         if (diff <= 0) {
             window.location.reload();
             return;
         }
-        
+
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
+
         document.getElementById('days').textContent = String(days).padStart(2, '0');
         document.getElementById('hours').textContent = String(hours).padStart(2, '0');
         document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
         document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
     }
-    
+
     updateCountdown();
     setInterval(updateCountdown, 1000);
 </script>
 {% endblock %}
 """
         
-        return render_template_string(template, status=status, end_time=event_end)
+        return render_template_string(template, status=status, start_time=event_start, end_time=event_end)
