@@ -1,24 +1,18 @@
 name: ace-ctf
 
 services:
-  # CTFd Application
   ctfd:
     build: .
     user: root
     restart: always
-    ports:
-      - "8000:8000"
     env_file:
       - .env
     environment:
-      # Variables calculées à partir du .env
       - DATABASE_URL=mysql+pymysql://ctfd:${MYSQL_PASSWORD}@db/ctfd
       - REDIS_URL=redis://cache:6379
       - FRONTEND_URL=${FRONTEND_URL}
       - REGISTRATION_SITE_URL=${REGISTRATION_SITE_URL}
-
     volumes:
-      # Plugins
       - ./plugins/registration_sync:/opt/CTFd/CTFd/plugins/registration_sync
       - ./plugins/score_sync:/opt/CTFd/CTFd/plugins/score_sync
       - ./plugins/auth_sync:/opt/CTFd/CTFd/plugins/auth_sync
@@ -29,40 +23,63 @@ services:
       - ./plugins/team_requirement_message:/opt/CTFd/CTFd/plugins/team_requirement_message
       - ./plugins/disable_user_settings:/opt/CTFd/CTFd/plugins/disable_user_settings
       - ./plugins/empty_challenges_message:/opt/CTFd/CTFd/plugins/empty_challenges_message
-
-      # Themes (optionnel)
-      # NOTE: Le montage du volume themes écrase le thème core de CTFd
-      # Pour utiliser un thème personnalisé, copiez-le dans l'image ou utilisez un montage nommé
-      # - ./themes:/opt/CTFd/CTFd/themes
-
-      # Uploads persistants
       - ctfd_uploads:/var/uploads
-
-      # Logs
       - ctfd_logs:/var/log/CTFd
-
     depends_on:
-      - db
-      - cache
-
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
     networks:
       - ctfd-internal
-      - ace-network # Réseau partagé avec le site d'inscription
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
 
+      # CTFd routing
+      - "traefik.http.routers.ctfd.rule=Host(`ctfd.vizyondijital.fr`)"
+      - "traefik.http.routers.ctfd.entrypoints=websecure"
+      - "traefik.http.routers.ctfd.tls=true"
+      - "traefik.http.routers.ctfd.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ctfd.loadbalancer.server.port=8000"
+
+      # Security headers
+      - "traefik.http.middlewares.ctfd-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.ctfd-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.ctfd-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.ctfd-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.ctfd-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.ctfd-headers.headers.browserXssFilter=true"
+
+      # CORS for CTFd API (allow requests from frontend)
+      - "traefik.http.middlewares.ctfd-cors.headers.accessControlAllowMethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "traefik.http.middlewares.ctfd-cors.headers.accessControlAllowHeaders=Content-Type,Authorization,X-Webhook-Signature,CSRF-Token"
+      - "traefik.http.middlewares.ctfd-cors.headers.accessControlAllowOriginList=https://ace.vizyondijital.fr,https://api.vizyondijital.fr"
+      - "traefik.http.middlewares.ctfd-cors.headers.accessControlAllowCredentials=true"
+      - "traefik.http.middlewares.ctfd-cors.headers.accessControlMaxAge=3600"
+
+      # Apply middleware
+      - "traefik.http.routers.ctfd.middlewares=ctfd-cors,ctfd-headers"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/healthcheck" ]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/healthcheck" ]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  # MariaDB Database
   db:
     image: mariadb:10.11
     restart: always
-    env_file:
-      - .env
     environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_USER=ctfd
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=ctfd
       - MARIADB_AUTO_UPGRADE=1
     volumes:
@@ -74,133 +91,48 @@ services:
       - --collation-server=utf8mb4_unicode_ci
       - --wait_timeout=28800
       - --log-warnings=0
+      - --max-connections=200
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  # Redis Cache
   cache:
     image: redis:7-alpine
     restart: always
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - ctfd_redis:/data
     networks:
       - ctfd-internal
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
 
-  # Traefik (Reverse Proxy pour les challenges)
-  # Note: En production, Apache gère le SSL et proxy vers Traefik sur le port 8081
-  traefik:
-    image: traefik:latest
-    restart: always
-    command:
-      # API Dashboard
-      - "--api.dashboard=true"
-      - "--api.insecure=true"
-
-      # Docker provider
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=ace-ctf-platform_ctfd-challenges"
-
-      # Entrypoints (HTTP only, SSL géré par Apache en production)
-      - "--entrypoints.web.address=:80"
-
-      # Logging
-      - "--log.level=INFO"
-      - "--accesslog=true"
-    ports:
-      - "8081:80" # Challenges HTTP (Apache proxy en production)
-      - "8082:8080" # Traefik dashboard
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - ctfd-challenges
-    # Note: Ne pas définir DOCKER_API_VERSION, laisser Traefik détecter automatiquement
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
-
-  # ===== 5 Test Challenges =====
-
-  challenge_test1:
-    build: ./challenges/test1-static/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test1.rule=Host(`test1.challenges.vizyondijital.fr`)"
-      - "traefik.http.routers.test1.entrypoints=web"
-      - "traefik.http.services.test1.loadbalancer.server.port=80"
-      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
-
-  challenge_test2:
-    build: ./challenges/test2-source/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test2.rule=Host(`test2.challenges.vizyondijital.fr`)"
-      - "traefik.http.routers.test2.entrypoints=web"
-      - "traefik.http.services.test2.loadbalancer.server.port=80"
-      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
-
-  challenge_test3:
-    build: ./challenges/test3-file/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test3.rule=Host(`test3.challenges.vizyondijital.fr`)"
-      - "traefik.http.routers.test3.entrypoints=web"
-      - "traefik.http.services.test3.loadbalancer.server.port=80"
-      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
-
-  challenge_test4:
-    build: ./challenges/test4-form/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test4.rule=Host(`test4.challenges.vizyondijital.fr`)"
-      - "traefik.http.routers.test4.entrypoints=web"
-      - "traefik.http.services.test4.loadbalancer.server.port=80"
-      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
-
-  challenge_test5:
-    build: ./challenges/test5-calc/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test5.rule=Host(`test5.challenges.vizyondijital.fr`)"
-      - "traefik.http.routers.test5.entrypoints=web"
-      - "traefik.http.services.test5.loadbalancer.server.port=80"
-      - "traefik.docker.network=ace-ctf-platform_ctfd-challenges"
-
-# Networks
 networks:
   ctfd-internal:
     driver: bridge
-    internal: true # Pas d'accès internet pour la DB/Redis
+    internal: true
 
-  ctfd-challenges:
-    driver: bridge
+  traefik-public:
+    external: true
 
-  ace-network:
-    name: ace-website_ace-network
-    external: true # Réseau créé par le site d'inscription ACE
-    # Ce réseau permet à CTFd de communiquer avec backend:5000
-
-    # Volumes
 volumes:
   ctfd_db:
-    driver: local
   ctfd_redis:
-    driver: local
   ctfd_uploads:
-    driver: local
   ctfd_logs:
-    driver: local
