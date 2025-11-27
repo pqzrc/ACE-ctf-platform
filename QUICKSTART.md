@@ -1,187 +1,262 @@
-# Guide de démarrage rapide
+# Guide de Démarrage Rapide - ACE CTFd
 
-## Installation
+Ce guide vous permet de démarrer rapidement la plateforme CTFd ACE en quelques minutes.
 
-### Prérequis
-- Docker et Docker Compose
-- Site d'inscription ACE démarré
-- Ports 8000, 8081, 8082 disponibles
+## 🚀 Installation Express (3 minutes)
 
-### Étapes
+### 1. Prérequis
+
+- **Docker** et **Docker Compose** installés
+- **ACE-Website** déjà démarré (requis pour la synchronisation)
+
+### 2. Cloner et Configurer
 
 ```bash
-# 1. Cloner le projet
-git clone https://github.com/donotdisturb7/ACE-ctf-platform.git
+# Cloner le projet
+git clone <repository-url>
 cd ACE-ctf-platform
 
-# 2. Configurer l'environnement
+# Copier la configuration
 cp .env.example .env
-nano .env  # Configurer JWT_SECRET, WEBHOOK_SECRET, passwords
-
-# 3. Démarrer
-docker compose up -d
-
-# 4. Vérifier
-docker compose ps
-docker logs ace-ctf-platform-ctfd-1
 ```
 
-### Variables essentielles (.env)
+### 3. Configurer les Variables Essentielles
 
-```env
-# Doit être IDENTIQUE au site d'inscription
-JWT_SECRET=meme-secret-que-site-inscription
-WEBHOOK_SECRET=secret-partage-avec-backend
-
-# Sécurité
-SECRET_KEY=cle-aleatoire-32-caracteres-minimum
-MYSQL_ROOT_PASSWORD=password-securise
-MYSQL_PASSWORD=password-securise
-
-# Admin site d'inscription
-REGISTRATION_SITE_ADMIN_EMAIL=admin@ace-escapegame.com
-REGISTRATION_SITE_ADMIN_PASSWORD=Admin123Pass
-
-# Admin CTFd
-CTFD_ADMIN_PASSWORD=votre-password-admin
-```
-
-## Accès
-
-| Service | URL |
-|---------|-----|
-| CTFd | http://localhost:8000 |
-| Traefik | http://localhost:8082 |
-| Challenge Test | http://test.challenges.local |
-
-**Connexion admin** : `admin` / votre `CTFD_ADMIN_PASSWORD`
-
-## Créer un challenge
-
-### 1. Structure
+Éditez le fichier `.env` :
 
 ```bash
-mkdir -p challenges/mon_challenge/deploy
-cd challenges/mon_challenge/deploy
+# Base de données
+MYSQL_ROOT_PASSWORD=changeme
+MYSQL_PASSWORD=changeme
+
+# CTFd (IMPORTANT : changer en production)
+SECRET_KEY=your-super-secret-ctfd-key
+
+# Synchronisation (URLs du site d'inscription)
+FRONTEND_URL=http://localhost:3000
+REGISTRATION_SITE_URL=http://backend:5000/api
+
+# JWT (DOIT être identique à ACE-Website)
+JWT_SECRET=same-as-website-jwt-secret
 ```
 
-### 2. Application (app.py)
-
-```python
-from flask import Flask
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return "Flag: ACE{mon_flag}"
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-```
-
-### 3. Dockerfile
-
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY app.py .
-RUN pip install flask
-CMD ["python", "app.py"]
-```
-
-### 4. Ajouter au docker compose.yml
-
-```yaml
-  challenge_mon_challenge:
-    build: ./challenges/mon_challenge/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mon.rule=Host(`mon.challenges.local`)"
-      - "traefik.http.services.mon.loadbalancer.server.port=5000"
-```
-
-### 5. Déployer
+### 4. Démarrer CTFd
 
 ```bash
-docker compose up -d --build challenge_mon_challenge
+# Démarrer tous les services
+make start
+
+# Attendre 1 minute pour l'initialisation
+# Vérifier que tout fonctionne
+make health-check
 ```
 
-### 6. Tester
+### 5. Accéder à la Plateforme
 
-Ajouter dans `/etc/hosts` : `127.0.0.1 mon.challenges.local`
+- **CTFd** : http://localhost:8000
+- **Traefik Dashboard** : http://localhost:8082
+- **Challenges** : http://localhost:8081
 
-Ouvrir http://mon.challenges.local
+## ✅ Vérification du Fonctionnement
 
-## Commandes utiles
+### Test de Base
+
+1. **Ouvrir** http://localhost:8000
+2. **Vérifier** que CTFd s'affiche correctement
+3. **Tester** l'authentification via le site d'inscription
+
+### Vérifier la Synchronisation
 
 ```bash
-# Démarrer
-docker compose up -d
+# Compter les équipes synchronisées
+make teams-count
 
-# Arrêter
-docker compose down
+# Compter les utilisateurs
+make users-count
 
-# Logs
-docker logs -f ace-ctf-platform-ctfd-1
-
-# Redémarrer après modification plugin
-docker restart ace-ctf-platform-ctfd-1
-
-# Fresh start (supprime tout)
-docker compose down -v && docker compose up -d
-
-# Shell
-docker exec -it ace-ctf-platform-ctfd-1 bash
+# Voir le classement
+make scoreboard
 ```
 
-## Dépannage
+### Configuration Automatique
 
-### SSO ne fonctionne pas
+CTFd est configuré automatiquement par le plugin `initial_setup` :
+- **Mode équipe** activé
+- **Plugins** chargés et configurés
+- **Thème** personnalisé appliqué
+
+## 🎮 Importer les Challenges
+
+### 1. Créer un Token Admin
+
+1. **Se connecter** à CTFd : http://localhost:8000
+2. **Aller** dans Settings > Access Tokens
+3. **Créer** un nouveau token avec permissions admin
+4. **Copier** le token
+
+### 2. Importer les Challenges
+
 ```bash
-# Vérifier JWT_SECRET identique
-grep JWT_SECRET .env
-grep JWT_SECRET ../ACE-website/backend/.env
+# Exporter le token
+export CTFD_TOKEN='votre-token-ici'
 
-# Vérifier logs
-docker logs ace-ctf-platform-ctfd-1 2>&1 | grep "SSO\|JWT"
+# Lister les challenges disponibles
+make list-challenges
+
+# Importer tous les challenges
+make import-challenges
 ```
 
-### Équipes ne se synchronisent pas
+### 3. Tester les Challenges
+
+Accéder aux challenges via :
+- http://localhost:8081 (développement)
+- http://test1.challenges.vizyondijital.fr (production)
+
+## 🔧 Commandes Utiles
+
 ```bash
-# Vérifier WEBHOOK_SECRET identique
-grep WEBHOOK_SECRET .env
-grep WEBHOOK_SECRET ../ACE-website/backend/.env
+# Gestion des services
+make start              # Démarrer
+make stop               # Arrêter
+make restart            # Redémarrer
+make restart-ctfd       # Redémarrer CTFd uniquement
 
-# Vérifier webhooks
-docker logs ace-ctf-platform-ctfd-1 2>&1 | grep "Webhook"
-docker logs ace-website-backend-1 2>&1 | grep "webhook"
+# Logs et debug
+make logs               # Logs CTFd
+make logs-all           # Tous les logs
+make health-check       # Vérifier la santé
 
-# Forcer sync
-docker restart ace-ctf-platform-ctfd-1
+# Base de données
+make db-shell           # Accès MariaDB
+make db-backup          # Sauvegarder
+make scoreboard         # Voir le classement
+
+# Site d'inscription
+make website-status     # État du site web
+make website-restart    # Redémarrer le site web
 ```
 
-### Réseau introuvable
+## 🚨 Résolution de Problèmes
+
+### CTFd ne démarre pas
+
 ```bash
-# Démarrer le site d'inscription d'abord
-cd ../ACE-website
-docker compose up -d
+# Vérifier l'état des services
+make status
 
-# Vérifier le réseau
-docker network ls | grep ace-website_ace-network
+# Voir les erreurs
+make logs
+
+# Redémarrage complet
+make fresh
 ```
 
-### Port déjà utilisé
+### Synchronisation échoue
+
+1. **Vérifier** que ACE-Website est démarré :
+   ```bash
+   make website-status
+   ```
+
+2. **Vérifier** que `JWT_SECRET` est identique dans les deux projets
+
+3. **Tester** la connectivité réseau :
+   ```bash
+   # Depuis le conteneur CTFd
+   make shell
+   curl http://backend:5000/health
+   ```
+
+### Challenges inaccessibles
+
 ```bash
-# Trouver le processus
-sudo lsof -i :8000
+# Vérifier Traefik
+make logs-traefik
 
-# Ou changer le port dans docker compose.yml
-# "8001:8000" au lieu de "8000:8000"
+# Vérifier les conteneurs de challenges
+make status | grep challenge
 ```
 
-## Documentation complète
+### Base de données corrompue
 
-Voir [README.md](./README.md) pour plus de détails sur l'architecture, les plugins et la configuration avancée.
+```bash
+# Sauvegarder d'abord (si possible)
+make db-backup
+
+# Réinitialiser complètement
+make db-reset
+
+# Redémarrer CTFd
+make restart-ctfd
+```
+
+## 🔄 Synchronisation avec ACE-Website
+
+### Fonctionnement Automatique
+
+La synchronisation se fait automatiquement :
+
+1. **Équipes** créées sur le site web → Apparaissent dans CTFd
+2. **Utilisateurs** inscrits → Comptes CTFd créés
+3. **Scores** CTFd → Synchronisés vers le site web
+4. **Salles** assignées → Affichées dans CTFd
+
+### Forcer une Synchronisation
+
+```bash
+# Synchronisation manuelle
+make sync-manual
+
+# Vérifier les résultats
+make teams-count
+make users-count
+```
+
+## 📊 Monitoring
+
+### Statistiques Rapides
+
+```bash
+# Classement actuel
+make scoreboard
+
+# Nombre d'équipes et utilisateurs
+make teams-count && make users-count
+
+# État général du système
+make health-check
+```
+
+### Logs en Temps Réel
+
+```bash
+# Logs CTFd
+make logs
+
+# Tous les logs
+make logs-all
+
+# Logs spécifiques
+make logs-db        # Base de données
+make logs-traefik   # Traefik/Challenges
+```
+
+## 🔗 Intégration Réseau
+
+CTFd utilise le réseau Docker `ace-network` créé par ACE-Website pour communiquer avec le backend d'inscription.
+
+**Important** : ACE-Website doit être démarré en premier pour créer le réseau partagé.
+
+## 📞 Support
+
+En cas de problème :
+
+1. **Vérifier** les logs : `make logs-all`
+2. **Tester** la connectivité : `make health-check`
+3. **Vérifier** la synchronisation : `make teams-count`
+
+---
+
+**Auteur** : Rénald DESIRE  
+**Projet** : ACE 2025 - Vizyon Dijital

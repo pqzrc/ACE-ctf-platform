@@ -1,301 +1,287 @@
-# Structure du projet CTFd ACE 2025
+# Structure du Projet ACE CTFd
 
-## Vue d'ensemble
+Ce document décrit l'organisation et l'architecture de la plateforme CTFd personnalisée pour ACE 2025.
+
+## 📁 Structure des Dossiers
 
 ```
 ACE-ctf-platform/
-├── plugins/                    # Plugins CTFd
-│   ├── auth_sync/             # SSO avec JWT
-│   │   └── __init__.py
-│   ├── registration_sync/     # Sync équipes
-│   │   └── __init__.py
-│   ├── score_sync/            # Sync scores
-│   │   └── __init__.py
-│   └── room_display/          # Affichage salles
-│       └── __init__.py
-│
-├── challenges/                # Challenges CTF
-│   └── test/                  # Challenge de test
-│       ├── README.md
-│       └── deploy/
-│           ├── Dockerfile
-│           └── app.py
-│
-├── docker compose.yml         # Configuration services
-├── Dockerfile                 # Image CTFd personnalisée
-├── .env.example              # Template config
-├── Makefile                  # Commandes simplifiées
-├── README.md                 # Documentation principale
-└── STRUCTURE.md              # Ce fichier
+├── plugins/              # Plugins CTFd personnalisés
+│   ├── registration_sync/    # Synchronisation des équipes
+│   ├── score_sync/          # Synchronisation des scores
+│   ├── auth_sync/           # Authentification unifiée
+│   ├── room_display/        # Affichage des salles
+│   ├── disable_team_editing/ # Désactivation édition équipes
+│   ├── disable_direct_auth/ # Désactivation auth directe
+│   ├── homepage_redirect/   # Redirection page d'accueil
+│   ├── team_requirement_message/ # Messages personnalisés
+│   ├── disable_user_settings/ # Désactivation paramètres
+│   ├── empty_challenges_message/ # Message challenges vides
+│   ├── scoreboard_lock/     # Verrouillage scoreboard
+│   └── initial_setup/       # Configuration automatique
+├── challenges/           # Challenges de test
+│   ├── test1-static/        # Challenge HTML statique
+│   ├── test2-source/        # Challenge avec code source
+│   ├── test3-file/          # Challenge avec fichier
+│   ├── test4-form/          # Challenge avec formulaire
+│   └── test5-calc/          # Challenge de calcul
+├── scripts/              # Scripts utilitaires
+│   ├── import_challenges.py # Import automatique des challenges
+│   └── test_sync.py        # Test de synchronisation
+├── deployment/           # Configuration de déploiement
+│   ├── apache/             # Configuration Apache
+│   ├── deploy.sh           # Script de déploiement
+│   └── DEPLOY.md           # Guide de déploiement
+├── docker-compose.yml    # Configuration Docker production
+├── Dockerfile           # Image CTFd personnalisée
+├── Makefile            # Commandes de gestion
+├── .env.example        # Variables d'environnement exemple
+└── README.md           # Documentation principale
 ```
 
-## Fichiers essentiels
+## 🔌 Architecture des Plugins
 
-### Configuration
+### Plugins de Synchronisation
 
-| Fichier | Description |
-|---------|-------------|
-| `docker compose.yml` | Services Docker (CTFd, MariaDB, Redis, Traefik, challenges) |
-| `Dockerfile` | Image CTFd avec plugins et dépendances (requests, APScheduler, PyJWT) |
-| `.env.example` | Variables d'environnement (JWT_SECRET, passwords, URLs) |
-| `Makefile` | Commandes simplifiées (start, stop, logs, etc.) |
+#### registration_sync
+- **Rôle** : Synchronise les équipes depuis le site d'inscription
+- **Fonctionnement** : 
+  - Écoute les webhooks du site web
+  - Crée/met à jour les équipes CTFd
+  - Gère les membres et capitaines
+- **Configuration** : URL du site d'inscription
 
-### Plugins
+#### score_sync
+- **Rôle** : Synchronise les scores vers le site web
+- **Fonctionnement** :
+  - Intercepte les changements de score
+  - Envoie les mises à jour via API
+  - Maintient la cohérence des classements
+- **Déclencheurs** : Soumission de flag, modification manuelle
 
-| Plugin | Rôle |
-|--------|------|
-| `auth_sync` | Authentification SSO avec JWT entre site et CTFd |
-| `registration_sync` | Synchronisation équipes depuis le site (2 min) |
-| `score_sync` | Envoi des scores vers le site (30 sec) |
-| `room_display` | Affichage des salles dans l'interface |
+#### auth_sync
+- **Rôle** : Authentification unifiée avec le site web
+- **Fonctionnement** :
+  - Valide les tokens JWT du site web
+  - Crée les sessions CTFd automatiquement
+  - Synchronise les informations utilisateur
 
-### Challenges
+### Plugins d'Interface
 
-| Challenge | Type | Difficulté | Flag |
-|-----------|------|------------|------|
-| `test` | Misc | Facile | `ACE{bienvenue_sur_la_plateforme_ctf}` |
+#### room_display
+- **Rôle** : Affiche les salles assignées aux équipes
+- **Fonctionnement** :
+  - Récupère les assignations de salle
+  - Affiche dans l'interface CTFd
+  - Met à jour en temps réel
 
-## Services Docker
+#### disable_team_editing
+- **Rôle** : Empêche la modification des équipes dans CTFd
+- **Fonctionnement** :
+  - Désactive les formulaires d'édition
+  - Redirige vers le site d'inscription
+  - Affiche des messages informatifs
 
-| Service | Port | Description |
-|---------|------|-------------|
-| `ctfd` | 8000 | Application CTFd |
-| `db` | - (interne) | Base de données MariaDB |
-| `cache` | - (interne) | Cache Redis |
-| `traefik` | 8081, 8082, 8443 | Reverse proxy pour challenges |
-| `challenge_test` | - (interne) | Challenge de test |
+#### homepage_redirect
+- **Rôle** : Redirige la page d'accueil
+- **Fonctionnement** :
+  - Redirige vers le site d'inscription
+  - Ou vers le scoreboard selon le contexte
+  - Gère les utilisateurs connectés
 
-## Réseaux Docker
+### Plugins de Configuration
 
-| Réseau | Type | Usage |
-|--------|------|-------|
-| `ctfd-internal` | bridge (internal) | Communication DB/Redis (pas d'accès internet) |
-| `ctfd-challenges` | bridge | Réseau des challenges avec Traefik |
-| `ace-network` | external | Réseau partagé avec le site d'inscription |
+#### initial_setup
+- **Rôle** : Configuration automatique de CTFd
+- **Fonctionnement** :
+  - Configure le mode équipe
+  - Active les plugins nécessaires
+  - Définit les paramètres de base
+- **Exécution** : Au premier démarrage
 
-## Volumes persistants
+#### disable_direct_auth
+- **Rôle** : Force l'authentification via le site web
+- **Fonctionnement** :
+  - Désactive les formulaires de connexion/inscription
+  - Redirige vers le site d'inscription
+  - Maintient les sessions existantes
 
-| Volume | Contenu |
-|--------|---------|
-| `ctfd_db` | Base de données MariaDB |
-| `ctfd_redis` | Cache Redis |
-| `ctfd_uploads` | Fichiers uploadés sur CTFd |
-| `ctfd_logs` | Logs de l'application |
+## 🎮 Architecture des Challenges
 
-## Variables d'environnement
-
-### Essentielles
-
-```env
-# Base de données
-MYSQL_ROOT_PASSWORD=changeme_root
-MYSQL_PASSWORD=changeme_ctfd
-
-# CTFd
-SECRET_KEY=changeme_very_long_random_secret
-
-# SSO (doit être identique au site)
-JWT_SECRET=changez-moi-en-production
-CTFD_PUBLIC_URL=http://localhost:8000
-
-# Site d'inscription
-REGISTRATION_SITE_URL=http://ace-website-backend-1:5000/api
-REGISTRATION_SITE_ADMIN_EMAIL=admin@ace-escapegame.com
-REGISTRATION_SITE_ADMIN_PASSWORD=Admin123!ChangeMoi
-```
-
-### Optionnelles
-
-```env
-# Mail (géré par le site d'inscription)
-MAIL_SERVER=smtp.example.com
-MAIL_PORT=587
-MAILFROM_ADDR=noreply@ace.com
-MAIL_USERNAME=user
-MAIL_PASSWORD=pass
-```
-
-## Flux SSO
+### Structure Type d'un Challenge
 
 ```
-Site d'inscription (localhost:3000)
-          │
-          │ 1. User clique "Accéder au CTFd"
-          │ 2. Frontend POST token JWT + email
-          ▼
-  POST /sso/authenticate
-          │
-          │ 3. CTFd valide JWT avec JWT_SECRET
-          │ 4. Crée/trouve l'utilisateur
-          │ 5. login_user() + cookies session
-          ▼
-    CTFd /challenges
-    (utilisateur connecté)
-```
-
-## Flux de synchronisation
-
-### Équipes (toutes les 2 min)
-
-```
-Site backend:5000/api/admin/teams
-          │
-          ▼
-[registration_sync plugin]
-          │
-          ▼
-    CTFd Teams
-```
-
-### Scores (toutes les 30 sec)
-
-```
-    CTFd Scoreboard
-          │
-          ▼
-[score_sync plugin]
-          │
-          ▼
-Site backend:5000/api/admin/ctfd/sync-scores
-```
-
-## Commandes Makefile
-
-```bash
-make help      # Liste des commandes
-make setup     # Créer .env
-make start     # Démarrer services
-make stop      # Arrêter services
-make restart   # Redémarrer
-make logs      # Logs CTFd
-make status    # État des services
-make build     # Rebuild image CTFd
-make rebuild   # Rebuild + restart
-make shell     # Shell dans CTFd
-make test      # Test accès services
-make clean     # Supprimer tout (avec confirmation)
-```
-
-## Créer un nouveau challenge
-
-### 1. Structure
-
-```
-challenges/mon_challenge/
-├── README.md
+challenges/test1-static/
+├── challenge.yml         # Métadonnées du challenge
 └── deploy/
-    ├── Dockerfile
-    └── app.py
+    ├── Dockerfile       # Image Docker du challenge
+    ├── index.html       # Contenu principal
+    └── [autres fichiers]
 ```
 
-### 2. Dockerfile
-
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY app.py .
-RUN pip install flask
-CMD ["python", "app.py"]
-```
-
-### 3. Application
-
-```python
-from flask import Flask
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return "Flag: ACE{mon_flag}"
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-```
-
-### 4. Docker Compose
-
-Ajouter dans `docker compose.yml` :
+### Métadonnées (challenge.yml)
 
 ```yaml
-  challenge_mon_challenge:
-    build: ./challenges/mon_challenge/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mon.rule=Host(`mon.challenges.local`)"
-      - "traefik.http.services.mon.loadbalancer.server.port=5000"
+name: "Test Challenge 1"
+category: "Web"
+description: "Challenge de test statique"
+value: 100
+flags:
+  - "ACE{test_flag_1}"
+tags:
+  - "beginner"
+  - "html"
 ```
 
-### 5. Déployer
+### Types de Challenges
 
-```bash
-docker compose up -d --build challenge_mon_challenge
+1. **Statique** (test1) : Page HTML simple
+2. **Source** (test2) : Code source à analyser
+3. **Fichier** (test3) : Fichier à télécharger
+4. **Formulaire** (test4) : Application web interactive
+5. **Calcul** (test5) : Challenge algorithmique
+
+## 🌐 Architecture Réseau
+
+### Réseaux Docker
+
+```yaml
+networks:
+  ctfd-internal:        # Base de données et cache (isolé)
+  ctfd-challenges:      # Challenges et Traefik
+  ace-network:          # Communication avec ACE-Website (externe)
 ```
 
-## Vérifications
+### Communication Inter-Services
 
-### Avant l'événement
-
-- [ ] Site d'inscription lancé sur réseau `ace-website_ace-network`
-- [ ] `.env` configuré avec JWT_SECRET identique au site
-- [ ] `make start` réussit
-- [ ] `make test` : CTFd et Traefik accessibles
-- [ ] SSO fonctionne (test avec user et admin)
-- [ ] Challenge test accessible sur http://test.challenges.local
-- [ ] Synchronisation équipes/scores active
-
-### Pendant l'événement
-
-- [ ] `make status` : tous les services UP
-- [ ] `make logs` : pas d'erreurs
-- [ ] Scoreboard mis à jour
-- [ ] Challenges accessibles
-
-## Dépannage
-
-### SSO ne fonctionne pas
-
-1. Vérifier `JWT_SECRET` identique dans les deux `.env`
-2. Vérifier réseau Docker : `docker network ls | grep ace`
-3. Logs : `make logs | grep SSO`
-4. Test manuel :
-   ```bash
-   curl -X POST http://localhost:8000/sso/authenticate \
-     -d "token=<jwt>&email=<email>"
-   ```
-
-### Plugin ne charge pas
-
-```bash
-make rebuild
-make logs | grep plugin
+```
+ACE-Website (backend:5000)
+    ↕ (ace-network)
+CTFd (ctfd:8000)
+    ↕ (ctfd-internal)
+MariaDB (db:3306) + Redis (cache:6379)
+    ↕ (ctfd-challenges)
+Traefik (traefik:80) ← Challenges
 ```
 
-### Challenge inaccessible
+### Routage des Challenges
 
-```bash
-# Vérifier Traefik
-curl http://localhost:8082/api/http/routers
+Traefik route les challenges selon les domaines :
+- `test1.challenges.vizyondijital.fr` → challenge_test1
+- `test2.challenges.vizyondijital.fr` → challenge_test2
+- etc.
 
-# Logs challenge
-docker compose logs challenge_test
+## 🔄 Flux de Synchronisation
 
-# Redémarrer
-docker compose restart challenge_test
+### 1. Création d'Équipe
+
+```
+Site Web → Webhook → registration_sync → CTFd Database
+                                      ↓
+                                   Équipe créée
 ```
 
-### Synchronisation échoue
+### 2. Soumission de Flag
 
-```bash
-# Vérifier site accessible depuis CTFd
-docker compose exec ctfd curl -s http://ace-website-backend-1:5000/api/health
-
-# Logs sync
-make logs | grep -E "(registration_sync|score_sync)"
 ```
+CTFd → score_sync → API Site Web → Base de données Site Web
+                                ↓
+                           Score mis à jour
+```
+
+### 3. Authentification
+
+```
+Site Web → JWT Token → auth_sync → Session CTFd
+                                ↓
+                           Utilisateur connecté
+```
+
+## 📊 Base de Données
+
+### Tables CTFd Principales
+
+- **teams** : Équipes synchronisées
+- **users** : Utilisateurs synchronisés
+- **challenges** : Challenges importés
+- **submissions** : Soumissions de flags
+- **solves** : Solutions validées
+
+### Données Synchronisées
+
+- **Équipes** : Nom, membres, capitaine, salle
+- **Utilisateurs** : Email, nom, rôle
+- **Scores** : Points, classement, temps de résolution
+
+## 🚀 Déploiement
+
+### Environnements
+
+1. **Développement** : Docker local avec hot-reload
+2. **Production** : Docker avec Apache reverse proxy
+
+### Configuration par Environnement
+
+- **Développement** : `.env` avec URLs localhost
+- **Production** : `.env` avec domaines réels
+
+### Volumes Persistants
+
+- `ctfd_db` : Base de données MariaDB
+- `ctfd_redis` : Cache Redis
+- `ctfd_uploads` : Fichiers uploadés
+- `ctfd_logs` : Logs CTFd
+
+## 🔧 Personnalisation
+
+### Ajouter un Plugin
+
+1. **Créer** le dossier `plugins/mon_plugin/`
+2. **Implémenter** `__init__.py` avec la classe plugin
+3. **Ajouter** au volume dans `docker-compose.yml`
+4. **Redémarrer** CTFd
+
+### Ajouter un Challenge
+
+1. **Créer** le dossier `challenges/mon_challenge/`
+2. **Créer** `challenge.yml` et `deploy/Dockerfile`
+3. **Ajouter** le service dans `docker-compose.yml`
+4. **Configurer** les labels Traefik
+5. **Importer** via le script Python
+
+### Modifier l'Interface
+
+Les plugins peuvent :
+- Ajouter des routes Flask
+- Modifier les templates Jinja2
+- Injecter du CSS/JavaScript
+- Créer des pages personnalisées
+
+## 📝 Bonnes Pratiques
+
+### Développement de Plugins
+
+1. **Hériter** de `CTFdPlugin`
+2. **Utiliser** les hooks CTFd appropriés
+3. **Gérer** les erreurs proprement
+4. **Logger** les actions importantes
+5. **Tester** avec différents scénarios
+
+### Sécurité
+
+1. **Valider** toutes les entrées
+2. **Utiliser** les permissions CTFd
+3. **Chiffrer** les communications sensibles
+4. **Auditer** les logs régulièrement
+
+### Performance
+
+1. **Optimiser** les requêtes base de données
+2. **Utiliser** le cache Redis
+3. **Limiter** les appels API externes
+4. **Monitorer** les ressources
 
 ---
 
-
+**Auteur** : Rénald DESIRE  
+**Projet** : ACE 2025 - Vizyon Dijital
