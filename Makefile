@@ -1,47 +1,19 @@
-.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell import-challenges deploy pull push dev dev-stop dev-restart dev-logs
+.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell import-challenges deploy pull push
 
-# ACE CTFd Platform - Makefile
+# ACE CTFd Platform - Makefile (Production)
 # Usage: make <commande>
 
 DOCKER_COMPOSE = docker compose
-DOCKER_COMPOSE_DEV = docker compose -f docker-compose.dev.yml
 
 help: ## Afficher l'aide
 	@echo ""
-	@echo "ACE CTFd Platform - Commandes disponibles"
-	@echo "=========================================="
+	@echo "ACE CTFd Platform - Commandes disponibles (Production)"
+	@echo "======================================================"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 
 # --- Commandes de base ---
-
-dev: ## Démarrer l'environnement de développement
-	@echo "🚀 Démarrage de CTFd ACE (mode développement)..."
-	$(DOCKER_COMPOSE_DEV) up -d
-	@echo ""
-	@echo "✅ Services démarrés (mode développement):"
-	@echo "  🏆 CTFd:      http://localhost:8000"
-	@echo ""
-	@echo "📝 Utilise .env.dev avec JWT_SECRET synchronisé"
-	@echo ""
-	@echo "Commandes utiles:"
-	@echo "  Logs:     make dev-logs"
-	@echo "  Arrêter:  make dev-stop"
-	@echo ""
-
-dev-stop: ## Arrêter l'environnement de développement
-	@echo "🛑 Arrêt de l'environnement de développement..."
-	$(DOCKER_COMPOSE_DEV) down
-	@echo "✅ Services arrêtés"
-
-dev-restart: ## Redémarrer l'environnement de développement
-	@echo "🔄 Redémarrage de l'environnement de développement..."
-	$(DOCKER_COMPOSE_DEV) restart
-	@echo "✅ Services redémarrés"
-
-dev-logs: ## Voir les logs en mode développement
-	$(DOCKER_COMPOSE_DEV) logs -f --tail=100
 
 start: ## Démarrer tous les services (production)
 	@echo "Démarrage de CTFd ACE..."
@@ -50,7 +22,7 @@ start: ## Démarrer tous les services (production)
 	@echo "Services démarrés:"
 	@echo "  CTFd:      http://localhost:8000"
 	@echo "  Traefik:   http://localhost:8082"
-	@echo "  Test1:     http://localhost:8081"
+	@echo "  Challenges: http://localhost:8081"
 	@echo ""
 	@echo "Voir les logs: make logs"
 
@@ -229,13 +201,13 @@ shell-db: ## Shell MariaDB (alias de db-shell)
 
 pull: ## Pull les derniers changements et rebuild
 	@echo "Pull des changements depuis Git..."
-	git pull origin deploy
+	git pull origin deploy-2
 	@echo "Rebuild de CTFd..."
 	$(DOCKER_COMPOSE) up -d --build ctfd
 	@echo "Mise à jour terminée"
 
 push: ## Push les changements vers Git
-	git push origin deploy
+	git push origin deploy-2
 	@echo "Push terminé"
 
 deploy: pull ## Déployer la dernière version (alias de pull)
