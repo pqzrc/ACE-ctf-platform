@@ -11,8 +11,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 REGISTRATION_SITE_URL = os.getenv('REGISTRATION_SITE_URL', 'http://backend:5000/api')
-JWT_SECRET = os.getenv('JWT_SECRET', 'changez-moi-en-production')
+JWT_SECRET = os.getenv('JWT_SECRET')
 CTFD_PUBLIC_URL = os.getenv('CTFD_PUBLIC_URL', 'http://localhost:8000')
+
+# Validate JWT_SECRET at startup
+if not JWT_SECRET:
+    logger.error("FATAL: JWT_SECRET environment variable is required!")
+    raise ValueError("JWT_SECRET must be configured")
 
 
 class RegistrationAuthAPI:

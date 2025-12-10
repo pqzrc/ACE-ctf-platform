@@ -1,0 +1,52 @@
+# Environment files (NEVER include in image)
+.env
+.env.*
+*.env
+
+# Git
+.git/
+.gitignore
+
+# Data directories
+.data/
+data/
+volumes/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+
+# Documentation
+*.md
+docs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Deployment scripts (not needed in image)
+deployment/
+scripts/
+
+# Challenges (mounted separately)
+challenges/

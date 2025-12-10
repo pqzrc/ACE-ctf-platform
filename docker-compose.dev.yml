@@ -1,0 +1,98 @@
+name: ace-ctf-dev
+
+services:
+  ctfd:
+    build: .
+    user: root
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.local
+    environment:
+      - DATABASE_URL=mysql+pymysql://ctfd:${MYSQL_PASSWORD}@db/ctfd
+      - REDIS_URL=redis://cache:6379
+      - FRONTEND_URL=${FRONTEND_URL}
+      - REGISTRATION_SITE_URL=${REGISTRATION_SITE_URL}
+    volumes:
+      - ./plugins/registration_sync:/opt/CTFd/CTFd/plugins/registration_sync
+      - ./plugins/score_sync:/opt/CTFd/CTFd/plugins/score_sync
+      - ./plugins/auth_sync:/opt/CTFd/CTFd/plugins/auth_sync
+      - ./plugins/room_display:/opt/CTFd/CTFd/plugins/room_display
+      - ./plugins/scoreboard_lock:/opt/CTFd/CTFd/plugins/scoreboard_lock
+      - ./plugins/disable_team_editing:/opt/CTFd/CTFd/plugins/disable_team_editing
+      - ./plugins/homepage_redirect:/opt/CTFd/CTFd/plugins/homepage_redirect
+      - ./plugins/disable_direct_auth:/opt/CTFd/CTFd/plugins/disable_direct_auth
+      - ./plugins/team_requirement_message:/opt/CTFd/CTFd/plugins/team_requirement_message
+      - ./plugins/disable_user_settings:/opt/CTFd/CTFd/plugins/disable_user_settings
+      - ./plugins/empty_challenges_message:/opt/CTFd/CTFd/plugins/empty_challenges_message
+      - ctfd_uploads_dev:/var/uploads
+      - ctfd_logs_dev:/var/log/CTFd
+    depends_on:
+      - db
+      - cache
+    networks:
+      - ctfd-internal-dev
+      - ace-network-dev
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db:
+    image: mariadb:10.11
+    restart: always
+    env_file:
+      - .env.local
+    environment:
+      - MYSQL_USER=ctfd
+      - MYSQL_DATABASE=ctfd
+      - MARIADB_AUTO_UPGRADE=1
+    volumes:
+      - ctfd_db_dev:/var/lib/mysql
+    networks:
+      - ctfd-internal-dev
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --wait_timeout=28800
+      - --log-warnings=0
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  cache:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - ctfd_redis_dev:/data
+    networks:
+      - ctfd-internal-dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+networks:
+  ctfd-internal-dev:
+    driver: bridge
+
+  ace-network-dev:
+    name: ace-website_ace-network-dev
+    external: true
+
+volumes:
+  ctfd_db_dev:
+  ctfd_redis_dev:
+  ctfd_uploads_dev:
+  ctfd_logs_dev:

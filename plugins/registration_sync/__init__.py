@@ -471,12 +471,16 @@ def load(app):
                             logger.info(f"Équipe trouvée par nom: {team.name}")
                     
                     # Priorité 3: Recherche par UUID partiel (fallback)
+                    # Note: UUID is hex chars only, but we escape SQL wildcards for safety
                     if not teams_to_delete and team_id_to_delete:
-                        teams_to_delete = Teams.query.filter(
-                            Teams.name.like(f'%{team_id_to_delete[-8:]}%')
-                        ).all()
-                        if teams_to_delete:
-                            logger.info(f"Équipe(s) trouvée(s) par UUID partiel: {[t.name for t in teams_to_delete]}")
+                        # Sanitize: escape SQL LIKE wildcards and only use alphanumeric
+                        safe_uuid_part = ''.join(c for c in team_id_to_delete[-8:] if c.isalnum())
+                        if safe_uuid_part:
+                            teams_to_delete = Teams.query.filter(
+                                Teams.name.like(f'%{safe_uuid_part}%')
+                            ).all()
+                            if teams_to_delete:
+                                logger.info(f"Équipe(s) trouvée(s) par UUID partiel: {[t.name for t in teams_to_delete]}")
 
                     if not teams_to_delete:
                         logger.warning(f"Aucune équipe trouvée pour suppression (ctfdId={ctfd_team_id}, uuid={team_id_to_delete}, name={team_name})")
