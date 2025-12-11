@@ -37,7 +37,17 @@
      * Initialise le widget
      */
     init(options = {}) {
+      // Support alias 'epreuve' pour 'currentEpreuve'
+      if (options.epreuve && !options.currentEpreuve) {
+        options.currentEpreuve = options.epreuve;
+      }
+      
       this.config = { ...this.config, ...options };
+      
+      // Auto-dériver apiBase si non fourni
+      if (!this.config.apiBase) {
+        this.config.apiBase = this.deriveApiBase();
+      }
       
       // Récupérer ou créer sessionId
       this.config.sessionId = this.getSessionId();
@@ -54,6 +64,28 @@
       setTimeout(() => {
         this.addLumenMessage("Je surveille vos actions. Vos tentatives sont... prévisibles.");
       }, 1000);
+    },
+    
+    /**
+     * Dérive l'URL de l'API LUMEN à partir du hostname actuel
+     */
+    deriveApiBase() {
+      const loc = window.location;
+      const hostParts = loc.hostname.split('.');
+      
+      // Production: xxx.challenges.vizyondijital.fr -> lumen.challenges.vizyondijital.fr
+      if (hostParts.length >= 3 && hostParts[1] === 'challenges') {
+        hostParts[0] = 'lumen';
+        return loc.protocol + '//' + hostParts.join('.');
+      }
+      
+      // Local: xxx.localhost -> lumen.localhost:8081
+      if (loc.hostname.includes('localhost')) {
+        return loc.protocol + '//lumen.localhost:8081';
+      }
+      
+      // Fallback: même origine
+      return loc.origin;
     },
 
     /**
