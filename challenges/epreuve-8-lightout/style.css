@@ -6,7 +6,7 @@ body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue
 /* Conteneur principal - grille responsive avec sidebar */
 .container{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
 
-/* En-tete qui s'etend sur toute la largeur */
+/* En-tête qui s'étend sur toute la largeur */
 header{grid-column:1/-1;margin-bottom:8px}
 
 /* TITRE PRINCIPAL */
@@ -62,19 +62,19 @@ main{position:relative}
 /* Style des tuiles individuelles */
 .tile{aspect-ratio:1/1;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;position:relative;overflow:hidden;background:#050511;box-shadow:inset 0 0 0 2px rgba(252,16,202,0.1)}
 
-/* Tuile eteinte - fond sombre */
+/* Tuile éteinte - fond sombre */
 .tile.off{background:#050511}
 
 
 /* Flou d'image /*
 
-/* Tuile allumee - affiche une portion de l'image avec flou */
+/* Tuile allumée - affiche une portion de l'image avec flou */
 .tile.on{
-  background-size:500% 500%; /* L'image est divisee en 5x5 (25 portions) */
+  background-size:500% 500%; /* L'image est divisée en 5x5 (25 portions) */
   transition: filter 0.25s ease;
 }
 
-/* Style quand la grille est remplacee par l'image complete */
+/* Style quand la grille est remplacée par l'image complète */
 .board.full-image{
   display: block;
   border: 2px solid #09c7df; /* Bordure bleue lumineuse */
@@ -85,7 +85,7 @@ main{position:relative}
   min-height: auto;
 }
 
-/* Animation de revelation de l'image complete */
+/* Animation de révélation de l'image complète */
 @keyframes imageReveal{
   from{
     opacity: 0;
@@ -97,13 +97,13 @@ main{position:relative}
   }
 }
 
-/* MESSAGE DE REUSSITE */
+/* MESSAGE DE RÉUSSITE */
 .success-message{
   margin-bottom: 16px;
   animation: successSlideIn 0.6s ease-out;
 }
 
-/* Contenu du message de reussite */
+/* Contenu du message de réussite */
 .success-content{
   background: linear-gradient(135deg, rgba(9,199,223,0.2), rgba(0,255,157,0.2));
   border: 2px solid #00ff9d;
@@ -113,7 +113,7 @@ main{position:relative}
   box-shadow: 0 0 25px rgba(0,255,157,0.4), inset 0 0 20px rgba(9,199,223,0.1);
 }
 
-/* Icone du message de reussite */
+/* Icône du message de réussite */
 .success-icon{
   font-size: 36px;
   display: block;
@@ -121,7 +121,7 @@ main{position:relative}
   animation: bounce 1s ease-in-out infinite;
 }
 
-/* Titre du message de reussite */
+/* Titre du message de réussite */
 .success-content h3{
   margin: 0 0 8px 0;
   font-size: 24px;
@@ -131,7 +131,7 @@ main{position:relative}
   font-weight: 700;
 }
 
-/* Paragraphe du message de reussite */
+/* Paragraphe du message de réussite */
 .success-content p{
   margin: 0;
   font-size: 16px;
@@ -139,7 +139,7 @@ main{position:relative}
   line-height: 1.5;
 }
 
-/* Animation d'apparition du message de reussite */
+/* Animation d'apparition du message de réussite */
 @keyframes successSlideIn{
   from{
     opacity: 0;
@@ -151,7 +151,7 @@ main{position:relative}
   }
 }
 
-/* Animation de rebond pour l'icone */
+/* Animation de rebond pour l'icône */
 @keyframes bounce{
   0%,100%{
     transform: translateY(0) scale(1);
@@ -161,7 +161,7 @@ main{position:relative}
   }
 }
 
-/* SIDEBAR (Panneau de controle) */
+/* SIDEBAR (Panneau de contrôle) */
 .side{background:#0f0e4a;padding:12px;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,0.6)}
 
 /* Style des boutons */
@@ -176,7 +176,7 @@ button:hover{background:#09c7df;box-shadow:0 0 15px rgba(9,199,223,0.5)}
 /* Texte en grand (pour le timer) */
 .big{font-size:24px;font-weight:700}
 
-/* Conteneur des boutons de controle */
+/* Conteneur des boutons de contrôle */
 .controls{display:flex;gap:8px;flex-wrap:wrap}
 
 footer{grid-column:1/-1;margin-top:12px;font-size:13px;color:#bbb}
@@ -247,7 +247,7 @@ footer{grid-column:1/-1;margin-top:12px;font-size:13px;color:#bbb}
 }
 
 /* RESPONSIVE */
-/* Sur petits ecrans, la sidebar passe en dessous */
+/* Sur petits écrans, la sidebar passe en dessous */
 @media (max-width:800px){.container{grid-template-columns:1fr}}
 
 /* OVERLAY DE VICTOIRE */
@@ -267,7 +267,7 @@ footer{grid-column:1/-1;margin-top:12px;font-size:13px;color:#bbb}
   padding: 20px;
   box-sizing: border-box;
   z-index: 1000;
-  /* Permet les interactions de la souris pour selectionner/copier le texte */
+  /* Permet les interactions de la souris pour sélectionner/copier le texte */
   pointer-events: auto;
   -webkit-user-select: text;
   -moz-user-select: text;
@@ -296,7 +296,7 @@ footer{grid-column:1/-1;margin-top:12px;font-size:13px;color:#bbb}
   text-align: center;
 }
 
-/* Zone de reponse dans l'overlay */
+/* Zone de réponse dans l'overlay */
 .win-overlay pre {
   margin: 0;
   white-space: pre-wrap;
