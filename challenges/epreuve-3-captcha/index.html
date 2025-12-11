@@ -83,7 +83,7 @@
       (function() {
         const loc = window.location;
         // Remplacer le sous-domaine (epreuveX) par "lumen"
-        // Ex: epreuve3.localhost:8081 → lumen.localhost:8081
+        // Ex: verification-humaine.localhost:8081 → lumen.localhost:8081
         // Ex: epreuve3.challenges.vizyondijital.fr → lumen.challenges.vizyondijital.fr
         const hostParts = loc.hostname.split('.');
         hostParts[0] = 'lumen';

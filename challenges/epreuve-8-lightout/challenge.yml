@@ -1,0 +1,19 @@
+name: "Épreuve 8 - Light Out"
+description: |
+  Résolvez le puzzle Light Out pour révéler l'image cachée contenant les informations sur le dispositif.
+
+  Accédez au dashboard de l'épreuve 7 pour trouver le lien vers ce puzzle.
+category: "Web"
+value: 100
+type: "standard"
+state: "visible"
+
+connection_info: "http://puzzle-dispositif.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{L8TS0UT5G}"
+
+tags:
+  - "puzzle"
+  - "web"
+  - "light-out"

@@ -25,11 +25,11 @@ Ce dossier contient toutes les épreuves du challenge ACE 2025.
 Ajoutez ces lignes à votre fichier `/etc/hosts` :
 
 ```bash
-127.0.0.1 epreuve1.localhost
-127.0.0.1 epreuve2.localhost
-127.0.0.1 epreuve3.localhost
-127.0.0.1 epreuve6.localhost
-127.0.0.1 epreuve9.localhost
+127.0.0.1 hamecon-phishing.localhost
+127.0.0.1 verrouillage-mdp.localhost
+127.0.0.1 verification-humaine.localhost
+127.0.0.1 logs-cryptes.localhost
+127.0.0.1 localisation-qr.localhost
 ```
 
 ### 2. Démarrer les challenges
@@ -43,12 +43,12 @@ make challenges-start
 
 | Épreuve | URL Locale | URL Production |
 |---------|------------|----------------|
-| Épreuve 1 | http://epreuve1.localhost:8081 | https://epreuve1.challenges.vizyondijital.fr |
-| Épreuve 2 | http://epreuve2.localhost:8081 | https://epreuve2.challenges.vizyondijital.fr |
-| Épreuve 3 | http://epreuve3.localhost:8081 | https://epreuve3.challenges.vizyondijital.fr |
-| Épreuve 6 | http://epreuve6.localhost:8081 | https://epreuve6.challenges.vizyondijital.fr |
-| Épreuve 8 | http://epreuve8.localhost:8081 | https://epreuve8.challenges.vizyondijital.fr |
-| Épreuve 9 | http://epreuve9.localhost:8081 | https://epreuve9.challenges.vizyondijital.fr |
+| Épreuve 1 | http://hamecon-phishing.localhost:8081 | https://epreuve1.challenges.vizyondijital.fr |
+| Épreuve 2 | http://verrouillage-mdp.localhost:8081 | https://epreuve2.challenges.vizyondijital.fr |
+| Épreuve 3 | http://verification-humaine.localhost:8081 | https://epreuve3.challenges.vizyondijital.fr |
+| Épreuve 6 | http://logs-cryptes.localhost:8081 | https://epreuve6.challenges.vizyondijital.fr |
+| Épreuve 8 | http://dsin-dashboard.localhost:8081 | https://epreuve8.challenges.vizyondijital.fr |
+| Épreuve 9 | http://localisation-qr.localhost:8081 | https://epreuve9.challenges.vizyondijital.fr |
 
 ## 🛠️ Commandes Utiles
 

@@ -334,10 +334,15 @@ def main():
         print(f"Erreur: Le dossier {base_path} n'existe pas")
         sys.exit(1)
 
-    # Trouver tous les challenges (exclure le dossier lumen)
+    # Trouver tous les challenges
+    # Exclusions:
+    # - lumen: c'est le serveur de chat, pas un challenge
+    # - epreuve-8-light-out: c'est un dashboard intermédiaire, pas un challenge CTFd
+    #   (le vrai challenge épreuve 8 est dans epreuve-8-lightout)
+    excluded_folders = ['lumen', 'epreuve-8-light-out']
     challenge_files = [
         f for f in find_challenge_files(base_path)
-        if 'lumen' not in str(f)
+        if not any(excluded in str(f) for excluded in excluded_folders)
     ]
 
     if not challenge_files:

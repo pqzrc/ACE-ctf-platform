@@ -10,7 +10,7 @@ Le widget LUMEN/DSIN a été intégré dans l'**Épreuve 3 - Captcha** pour test
 
 **En local (dev) :**
 ```
-http://epreuve3.localhost/
+http://verification-humaine.localhost/
 ```
 
 **En production :**

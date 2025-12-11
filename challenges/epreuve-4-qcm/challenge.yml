@@ -19,7 +19,7 @@ value: 100
 type: standard
 state: visible
 
-connection_info: "http://epreuve4.challenges.vizyondijital.fr"
+connection_info: "http://test-connaissance.challenges.vizyondijital.fr"
 
 flags:
   - "ACE{QRSK63IHW}"

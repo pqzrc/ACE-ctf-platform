@@ -1,25 +1,36 @@
 # Dockerfile pour Épreuve 6 - Logs Décryptage
-# Challenge Node.js avec Express
+# Challenge PHP avec Apache
 
-FROM node:20-alpine
+FROM php:8.2-apache
 
-# Créer le répertoire de travail
-WORKDIR /app
+# Activer les modules Apache nécessaires
+RUN a2enmod headers rewrite
 
-# Installer les dépendances
-RUN npm init -y && npm install express
+# Créer le dossier pour les logs
+RUN mkdir -p /var/www/html/logs && chmod 777 /var/www/html/logs
 
 # Copier les fichiers du challenge
-COPY index.html .
-COPY style.css .
-COPY server.js .
+COPY index.html /var/www/html/
+COPY css/ /var/www/html/css/
+COPY js/ /var/www/html/js/
+COPY api/ /var/www/html/api/
+COPY logs/ /var/www/html/logs/
 
-# Exposer le port
-EXPOSE 3000
+# Configuration Apache avec CORS et rewrite
+RUN echo '<Directory /var/www/html>\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+    Header set Access-Control-Allow-Origin "*"\n\
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"\n\
+    Header set Access-Control-Allow-Headers "Content-Type"\n\
+</Directory>' >> /etc/apache2/apache2.conf
 
-# Variable d'environnement pour le port
-ENV PORT=3000
+# Activer .htaccess
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-# Démarrer le serveur Node.js
-CMD ["node", "server.js"]
+# Exposer le port 80
+EXPOSE 80
 
+# Démarrer Apache
+CMD ["apache2-foreground"]

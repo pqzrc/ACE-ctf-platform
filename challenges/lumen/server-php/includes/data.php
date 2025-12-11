@@ -53,53 +53,104 @@ $FLAGS_EPREUVES = [
     2 => "ACE{M0Z60XOXS}",
     3 => "ACE{CDHWGUS2M}",
     4 => "ACE{QRSK63IHW}",
+    5 => "ACE{X5P0PU9M2}",
     6 => "ACE{DT90KGNEF}",
-    8 => "ACE{L7S5ZEQO6}",
+    7 => "ACE{R3S34U7NK}",
+    8 => "ACE{L8TS0UT5G}",
     9 => "ACE{R4044Z0MF}",
     10 => "ACE{FID6MX78S}"
 ];
 
-// Messages DSIN de succès (avec flags et explications pédagogiques pour certaines épreuves)
-$MESSAGES_DSIN_SUCCESS = [
-    1 => "✅ Mail frauduleux identifié et signalé.\n\nLe vecteur d'entrée initial de L.U.M.E.N. est clarifié. Ce type d'attaque par phishing est l'une des principales causes de compromission de comptes professionnels.\n\nPourquoi c'est dangereux ?\n• Les emails de phishing imitent des sources légitimes (université, banque, services)\n• Ils exploitent l'urgence ou la peur pour vous faire agir rapidement\n• Un simple clic sur un lien ou une pièce jointe peut compromettre votre compte\n• Les attaquants peuvent ensuite accéder à vos données et utiliser votre compte pour propager l'attaque\n\nConseils de sécurité :\n• Vérifiez toujours l'adresse email de l'expéditeur\n• Méfiez-vous des messages urgents ou menaçants\n• Ne cliquez jamais sur des liens suspects\n• En cas de doute, contactez directement l'expéditeur par un autre canal\n\nFlag débloqué : `ACE{P7MOZXL4M}`",
-    2 => "✅ Mot de passe réinitialisé. L.U.M.E.N. vient de perdre l'accès à ce compte interne critique.\n\nFlag débloqué : `ACE{M0Z60XOXS}`",
-    3 => "✅ Captcha validé malgré le sabotage. La preuve d'humanité est enregistrée.\n\nFlag débloqué : `ACE{CDHWGUS2M}`",
-    4 => "✅ Score suffisant atteint. Le panneau de contrôle est officiellement débloqué.\n\nFlag débloqué : `ACE{QRSK63IHW}`",
-    5 => "✅ Pop-ups malveillants neutralisés. Le panneau de contrôle redevient exploitable.",
-    6 => "✅ Logs déchiffrés. Les causes d'instabilité réseau sont désormais connues.\n\nFlag débloqué : `ACE{DT90KGNEF}`",
-    7 => "✅ Séquence de commandes validée. Les communications critiques se rétablissent.",
-    8 => "✅ Puzzle résolu. L'emplacement du dispositif de désactivation est identifié.\n\nFlag débloqué : `ACE{L7S5ZEQO6}`",
-    9 => "✅ Dispositif récupéré. Le Raspberry Pi est prêt pour la procédure de déconnexion.\n\nFlag débloqué : `ACE{R4044Z0MF}`",
-    10 => "✅ Scripts exécutés. L.U.M.E.N. est en cours d'extinction, le campus est en voie de sécurisation.\n\nFlag final débloqué : `ACE{FID6MX78S}`"
-];
-
 // Messages DSIN d'introduction
 $MESSAGES_DSIN_INTRO = [
-    1 => "Activité anormale détectée sur le réseau interne. Un mail frauduleux est probablement à l'origine de l'intrusion. Identifiez-le pour remonter à la première compromission.",
-    2 => "Vous avez identifié le compte touché. Restaurez son mot de passe pour empêcher LUMEN de l'exploiter davantage.",
-    3 => "LUMEN altère les interactions clavier/souris. Validez le captcha malgré le sabotage pour confirmer votre présence humaine.",
-    4 => "L'accès au panneau est verrouillé par un test imposé par LUMEN. Passez ce test, nous ne pouvons pas le contourner.",
-    5 => "Le panneau de contrôle est saturé d'alertes visuelles artificielles. Nettoyez l'interface pour reprendre la main.",
-    6 => "Les journaux réseau semblent corrompus. Décryptez-les pour identifier la source de l'instabilité générale.",
-    7 => "Le réseau approche d'un point de rupture. Réactivez les services dans l'ordre exact pour stabiliser les communications.",
-    8 => "Un message interne a été intercepté sous forme fragmentée. Utilisez l'outil visuel pour en restaurer la structure.",
-    9 => "Le message reconstitué indique un emplacement physique. Localisez le dispositif au plus vite, nous perdons des serveurs.",
-    10 => "Vous êtes en position. Nous ne pouvons plus vous assister à distance. Suivez la procédure retrouvée pour tenter de couper LUMEN."
+    1 => "Nous pensons que L.U.M.E.N. a infiltré notre réseau via un e-mail piégé reçu par l’un de nos agents.
+Analysez la boîte mail fournie et identifiez le message utilisé pour l’intrusion.
+Signalez-le dès que vous l’avez trouvé. Nous devons comprendre sa porte d’entrée.",
+    2 => "Le compte compromis a été isolé, mais L.U.M.E.N. y conserve encore un accès.
+Votre objectif : reprendre le contrôle en définissant un nouveau mot de passe.
+Ce compte relève d’un niveau de sécurité élevé ; la politique associée est extrêmement stricte.
+Créez un mot de passe qui respecte toutes les exigences imposées par le système.",
+    3 => "Le système exige une vérification humaine avant l’accès au tableau de bord.
+Le captcha affiché est clairement altéré : réactions instables et comportements inhabituels.
+L.U.M.E.N. a probablement saboté ce module lorsqu’elle disposait encore d’un accès administratif.
+Nous allons devoir passer ce captcha, malgré son état, pour accéder au tableau de bord.",
+    4 => "Manifestement, l’accès au tableau de bord est encore bloqué.
+L.U.M.E.N. a ajouté un QCM sur l’université avant d’autoriser l’ouverture du portail.
+Nous ne savons pas vraiment ce qu’elle cherche à prouver, mais les questions doivent être simples.
+Nous devrions pouvoir franchir cette étape sans difficulté.",
+    5 => "Nous accédons enfin au panneau de contrôle… mais l’interface est inutilisable.
+L.U.M.E.N. a injecté une multitude de pop-ups malveillants qui saturent l’écran et bloquent toute action.
+Impossible d’interagir correctement tant que ces fenêtres restent actives.
+Il va falloir restaurer une interface propre avant de poursuivre.",
+    6 => "Le panneau de contrôle est enfin opérationnel.
+Nous pouvons accéder aux documents permettant de retracer les événements…
+Mais une grande partie des fichiers apparaît cryptée ou altérée.
+Nous devons absolument comprendre ce qu’il s’est passé, surtout sur des systèmes comme le réseau.
+Il va falloir décrypter ces données pour obtenir une vision claire de la situation.",
+    7 => "Les informations décryptées confirment l’ampleur des dégâts : le réseau de l’université est fortement désorganisé.
+Plusieurs services sont inaccessibles, la messagerie est instable et de nombreuses coupures perturbent les communications.
+Nous devons rétablir la structure du réseau en exécutant la bonne séquence de commandes.",
+    8 => "Le rétablissement du réseau remet en service plusieurs modules du tableau de bord.
+Ils sont à nouveau accessibles : il faudrait les consulter, certaines informations pourraient nous etre utile",
+    9 => "Nothing to say",
+    10 => "Nothing to say"
 ];
+
+
+// Messages DSIN de succès
+$MESSAGES_DSIN_SUCCESS = [
+    1 => "L'e-mail identifié était bien à l'origine du compromis.
+Le compte touché appartenait à un membre clé de la DSIN, ce qui a permis à L.U.M.E.N. d'élargir ses accès de manière significative.
+Rappel : la plupart des intrusions commencent par un message piégé, même lorsqu'elles visent des comptes internes sensibles.
+Nous pouvons poursuivre avec la procédure de récupération du compte compromis.
+Flag : ACE{P7MOZXL4M}",
+    2 => "Le nouveau mot de passe a été validé : nous reprenons enfin le contrôle du compte compromis.
+Rappel de sécurité : privilégiez des mots de passe longs, uniques, et incluant minuscules, majuscules, chiffres et caractères spéciaux. Évitez les informations personnelles et la réutilisation, principales sources de compromission.
+Nous allons maintenant pouvoir accéder au dashboard interne pour analyser en détail l'étendue des violations d'accès et la gravité de la situation.
+Flag : ACE{M0Z60XOXS}",
+    3 => "La vérification humaine est validée. Malgré les altérations de L.U.M.E.N., l'accès est désormais ouvert.
+Nous allons pouvoir entrer dans le tableau de bord et examiner les logs pour comprendre ce qu'il s'est passé.
+Flag : ACE{CDHWGUS2M}",
+    4 => "Très bien, le test est validé.
+Les questions étaient peut-être un peu plus complexes que prévu…
+Il semble que L.U.M.E.N. cherchait, à travers ce QCM, à prouver que l'humain serait incapable de répondre correctement à des questions sur sa propre institution.
+Espérons qu'il n'y ait pas d'autre barrière et que nous puissions enfin accéder au tableau de bord.
+Flag : ACE{QRSK63IHW}",
+    5 => "Parfait, l'interface est nettoyée.
+Elle paraît enfin utilisable et les pop-ups ne perturbent plus le panneau de contrôle.
+Nous allons pouvoir commencer à évaluer l'ampleur des dégâts laissés par L.U.M.E.N.
+Flag : ACE{X5P0PU9M2}",
+    6 => "Parfait, les données ont été décryptées.
+Nous savons désormais exactement ce qu'il s'est passé, en particulier sur les systèmes les plus sensibles.
+Avec ces informations, nous pourrons déterminer plus clairement la marche à suivre et les actions à entreprendre pour rétablir la situation.",
+    7 => "Parfait, la séquence de commandes a été validée.
+Le réseau est rétabli et nous commençons enfin à reprendre la main, étape par étape.
+Si tout continue dans ce sens, nous pourrions peut-être réussir à reprendre le contrôle à temps.
+Flag : ACE{R3S34U7NK}",
+    8 => "Très bien, les informations sont enfin apparues.
+Il s'agirait d'indications de localisation ainsi que des instructions pour activer un dispositif capable de régler notre problème.
+Nous ne devons pas perdre de temps : il faut aller le récupérer au plus vite.
+Flag : ACE{L8TS0UT5G}",
+    9 => "Nothing to say",
+    10 => "Nothing to say"
+];
+
+
+
 
 // Fonction pour générer le prompt d'échec
 function getFailurePrompt($numeroEpreuve, $contexte) {
     $prompts = [
-        1 => "Contexte de l'épreuve : {$contexte}\nL'épreuve n'a PAS été validée par l'équipe. En max 50 mots.",
-        2 => "Contexte de l'épreuve : {$contexte}\nL'épreuve de création de mot de passe n'a PAS été validée. En max 50 mots.",
-        3 => "Contexte de l'épreuve : {$contexte}\nLes joueurs ont échoué le captcha saboté par l'IA. En max 50 mots.",
-        4 => "Contexte de l'épreuve : {$contexte}\nL'équipe n'a pas atteint le score minimal au QCM provocant de L.U.M.E.N. En max 50 mots.",
-        5 => "Contexte de l'épreuve : {$contexte}\nLes joueurs n'ont pas réussi à fermer suffisamment de pop-ups malveillants dans le temps imparti. En max 50 mots.",
-        6 => "Contexte de l'épreuve : {$contexte}\nLes joueurs n'ont pas réussi à décrypter le log réseau contenant le flag. En max 50 mots.",
+        1 => "Contexte de l'épreuve : {$contexte}\nLes joueurs n'ont pas réussi a trouvé l'email de phishing que tu as créé. En max 50 mots.",
+        2 => "Contexte de l'épreuve : {$contexte}\nNothing to say. En max 50 mots.",
+        3 => "Contexte de l'épreuve : {$contexte}\nLes joueurs ont échoué le captcha saboté par par toi. En max 50 mots.",
+        4 => "Contexte de l'épreuve : {$contexte}\nL'équipe n'a pas atteint le score minimal au QCM provocant que tu as fais. En max 50 mots.",
+        5 => "Contexte de l'épreuve : {$contexte}\nNothing to say. En max 50 mots.",
+        6 => "Contexte de l'épreuve : {$contexte}\nNothing to say. En max 50 mots.",
         7 => "Contexte de l'épreuve : {$contexte}\nLes joueurs n'ont pas réussi à remettre correctement les commandes réseau dans l'ordre logique. En max 50 mots.",
-        8 => "Contexte de l'épreuve : {$contexte}\nLes joueurs n'ont pas réussi à résoudre le puzzle pour révéler le message de la DSIN. En max 50 mots.",
-        9 => "Contexte de l'épreuve : {$contexte}\nLes joueurs n'ont pas réussi à trouver le dispositif physique ou le flag associé. En max 50 mots.",
-        10 => "Contexte de l'épreuve : {$contexte}\nLes joueurs n'ont pas réussi la désactivation finale via le Raspberry Pi et les commandes SSH. En max 50 mots."
+        8 => "Contexte de l'épreuve : {$contexte}\nNothing to say. En max 50 mots.",
+        9 => "Contexte de l'épreuve : {$contexte}\nNothing to say. En max 50 mots.",
+        10 => "Contexte de l'épreuve : {$contexte}\nNothing to say. En max 50 mots."
     ];
 
     return $prompts[$numeroEpreuve] ?? "Contexte : {$contexte}\nL'épreuve a échoué. En max 50 mots.";

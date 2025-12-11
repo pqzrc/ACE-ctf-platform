@@ -16,7 +16,7 @@ value: 100
 type: standard
 state: visible
 
-connection_info: "http://epreuve2.challenges.vizyondijital.fr"
+connection_info: "http://verrouillage-mdp.challenges.vizyondijital.fr"
 
 flags:
   - "ACE{M0Z60XOXS}"
