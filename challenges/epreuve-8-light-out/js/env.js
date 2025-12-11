@@ -8,7 +8,7 @@ const ENV = {
     const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('.localhost');
     return isLocal
       ? 'http://epreuve8-puzzle.localhost:8081'
-      : 'https://epreuve8-puzzle.challenges.vizyondijital.fr';
+      : 'https://dsin-dashboard.challenges.vizyondijital.fr';
   })(),
 
   // Autres configurations peuvent être ajoutées ici
