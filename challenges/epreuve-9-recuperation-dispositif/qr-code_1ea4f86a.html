@@ -6,7 +6,7 @@
     <title>Épreuve 9 - Tracage du Signal (1/3)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"
 </head>
 <body>
 
@@ -28,7 +28,7 @@
 
         <header class="text-center">
             <h1 class="title-font text-3xl sm:text-4xl text-white mb-2 tracking-wider" style="color: var(--color-accent-bleu);">
-                ÉPREUVE 9 - TRACAGE DU SIGNAL (1/3)
+                ÉPREUVE 9 - TRACAGE DU SIGNAL (1/4)
             </h1>
             <p class="text-xl text-white font-semibold mb-4">
                 L.U.M.E.N. brouille les pistes. Trouver le dispositif et scannez le.
@@ -67,30 +67,7 @@
 
     </div>
 
-    <!-- Widget LUMEN/DSIN -->
-<script>
-  // Dériver automatiquement l'URL de LUMEN à partir de l'URL actuelle
-  (function() {
-    const loc = window.location;
-    const hostParts = loc.hostname.split('.');
-    hostParts[0] = 'lumen';
-    const lumenHost = hostParts.join('.');
-    const lumenBase = loc.protocol + '//' + lumenHost + (loc.port ? ':' + loc.port : '');
-    
-    window.LUMEN_CONFIG = { apiBase: lumenBase, currentEpreuve: 9 };
-
-    const script = document.createElement('script');
-    script.src = lumenBase + '/public/widget/lumen-widget.js';
-    script.onload = function() {
-      if (typeof LumenWidget !== 'undefined') {
-        LumenWidget.init(window.LUMEN_CONFIG);
-      }
-    };
-    document.head.appendChild(script);
-  })();
-</script>
-
-<script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             const revealButton = document.getElementById('reveal-button');
             const revealedSection = document.getElementById('revealed-image-section');
@@ -123,6 +100,26 @@
                 }
             });
         });
+    </script>
+
+    <!-- Widget LUMEN/DSIN -->
+    <script>
+      (function() {
+        const loc = window.location;
+        const hostParts = loc.hostname.split('.');
+        hostParts[0] = 'lumen';
+        const lumenHost = hostParts.join('.');
+        const lumenBase = loc.protocol + '//' + lumenHost + (loc.port ? ':' + loc.port : '');
+
+        const script = document.createElement('script');
+        script.src = lumenBase + '/public/widget/lumen-widget.js';
+        script.onload = function() {
+          if (typeof LumenWidget !== 'undefined') {
+            LumenWidget.init({ apiBase: lumenBase, currentEpreuve: 9 });
+          }
+        };
+        document.head.appendChild(script);
+      })();
     </script>
 
 </body>

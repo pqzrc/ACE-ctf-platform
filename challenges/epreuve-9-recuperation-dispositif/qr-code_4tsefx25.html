@@ -3,61 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bravo - Code Final</title>
+    <title>Épreuve 9 - Localisation Finale (3/3)</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="style.css">
+    
 </head>
 <body>
+
+    <div id="intro-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="title-font text-3xl font-bold modal-title">
+                ☑️ TRAQUE TERMINÉE !
+            </h2>
+            <p class="text-lg mb-4 text-white">
+                <strong>Bien joué !</strong> Vous avez découvert le dernier dispositive. Entrez le flag et dirigez vous vers la salle indiquée.
+            </p>
+            <button id="modal-close-button" class="modal-button title-font text-xl font-bold py-3 px-8 rounded-full uppercase tracking-wider text-white hover:text-black mt-4">
+                Terminer la recherche !
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg mx-auto space-y-8 mt-10">
+
+        <header class="text-center">
+            <h1 class="title-font text-3xl sm:text-4xl text-white mb-2 tracking-wider" style="color: var(--color-accent-bleu);">
+                ÉPREUVE 9 - TRACAGE DU SIGNAL (4/4)
+            </h1>
+            <p class="text-xl text-white font-semibold mb-4">
+                L.U.M.E.N. brouille les pistes. Trouver le dispositif et scannez le.
+            </p>
+
+            <div class="mt-6">
+                <p class="text-lg text-white font-semibold mb-2">
+                    Signal intercepté :
+                </p>
+                <div class="card p-4 rounded-xl inline-block border-2 border-dashed" style="border-color: var(--color-accent-rose);">
+                    <p class="title-font text-4xl sm:text-5xl tracking-widest" style="color: var(--color-success);">
+                        0MF}
+                    </p>
+                </div>
+                <p class="text-sm mt-2" style="color: var(--color-accent-rose);">
+                    C'est la dernière partie du code final. 
+                </p>
+            </div>
+            </header>
+
+            <section id="final-validation-section" class="card p-4 rounded-xl">
+                <h2 class="text-lg font-semibold mb-3 text-center" style="color: var(--color-success);">
+                    Validation de la Mission
+                </h2>
+                <div class="p-4 border border-dashed border-gray-600 rounded-lg">
+                    <p class="text-center font-semibold mb-3 text-white">
+                        Entrez le FLAG présent sur le dispositif :
+                    </p>
+                    <div class="flex flex-col gap-3 justify-center">
+                        <input type="text" id="final-flag-input" placeholder="EX: FLAG-RPI-1234" class="w-full p-3 rounded-md bg-gray-900 text-white border border-gray-700 focus:ring-2 focus:ring-green-500 focus:border-green-500 title-font uppercase tracking-wider text-center">
+                        
+                        <button id="validate-final-flag-button" class="neon-button title-font text-xl font-bold py-3 px-8 rounded-full shadow-lg uppercase tracking-wider text-white hover:text-black w-full">
+                            NEUTRALISER L.U.M.E.N.
+                        </button>
+                    </div>
+                    <p id="message-final-validation" class="mt-3 text-center text-sm font-semibold hidden">
+                        </p>
+                </div>
+            </section>
+
+        <main class="card p-4 rounded-xl">
+            <h2 class="text-lg font-semibold mb-3 text-center" style="color: var(--color-accent-bleu);">
+                Cible : Emplacement du Dispositif
+            </h2>
+
+            <div id="image-plan-container" class="w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700 p-2">
+                <img id="image-salle" src="images/salle_i4.jpg" alt="Photo de la salle du Raspberry Pi" class="w-full h-auto rounded object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/0f0e4a/ff0055?text=IMAGE+SALLE+MANQUANTE'; this.alt='Erreur de chargement';" >
+            </div>
+
+            <div class="mt-6 text-center space-y-2">
+                <p class="text-lg font-bold uppercase tracking-widest" style="color: var(--color-success);">
+                    📍 SALLE : I4
+                </p>
+                <p class="text-sm text-gray-300">
+                    Description : Premier étage du batiment UFR
+                </p>
+                <hr class="border-gray-700 my-4">
+                <p class="text-white">
+                    Rendez-vous sur place immédiatement.<br>
+                    Trouvez le <strong>Raspberry Pi</strong> et récupérez le <strong>FLAG</strong>.
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // -- GESTION DE LA POP-UP --
+            const modal = document.getElementById('intro-modal');
+            const modalCloseButton = document.getElementById('modal-close-button');
+
+            if(modalCloseButton && modal) {
+                modalCloseButton.addEventListener('click', () => {
+                    modal.classList.add('hidden'); // Cache la pop-up
+                });
+            }
+
+            // -- GESTION DU FLAG --
+            const finalFlagInput = document.getElementById('final-flag-input');
+            const validateButton = document.getElementById('validate-final-flag-button');
+            const messageBox = document.getElementById('message-final-validation');
+
+            // À MODIFIER : Le vrai flag qui est collé sur le Raspberry Pi
+            const VRAI_FLAG_FINAL = "ACE{R4044Z0MF}"; 
+
+            validateButton.addEventListener('click', () => {
+                const flagSaisi = finalFlagInput.value.trim().toUpperCase();
+                messageBox.classList.remove('hidden', 'text-green-400', 'text-red-400');
+
+                // Simulation de la validation (Normalement via API PHP)
+                if (flagSaisi === VRAI_FLAG_FINAL) {
+                    messageBox.textContent = "✅ CODE VALIDE ! ÉPREUVE RÉUSSITE.";
+                    messageBox.classList.add('text-green-400');
+                    // Désactiver le bouton pour éviter le spam
+                    validateButton.disabled = true;
+                    validateButton.style.opacity = "0.5";
+                    
+                    // Optionnel : Redirection vers une page de victoire finale après 2 secondes
+                    // setTimeout(() => window.location.href = "victoire.html", 2000);
+                } else {
+                    messageBox.textContent = "❌ ERREUR : Ce n'est pas le bon flag.";
+                    messageBox.classList.add('text-red-400');
+                }
+            });
+        });
+    </script>
+
     <!-- Widget LUMEN/DSIN -->
     <script>
-      // Dériver automatiquement l'URL de LUMEN à partir de l'URL actuelle
       (function() {
         const loc = window.location;
         const hostParts = loc.hostname.split('.');
         hostParts[0] = 'lumen';
         const lumenHost = hostParts.join('.');
         const lumenBase = loc.protocol + '//' + lumenHost + (loc.port ? ':' + loc.port : '');
-        
-        window.LUMEN_CONFIG = { apiBase: lumenBase, currentEpreuve: 9 };
 
         const script = document.createElement('script');
         script.src = lumenBase + '/public/widget/lumen-widget.js';
         script.onload = function() {
           if (typeof LumenWidget !== 'undefined') {
-            LumenWidget.init(window.LUMEN_CONFIG);
-            // Cette page est la page de succès finale - notifier le succès
-            LumenWidget.reportEpreuveResult(9, true);
+            LumenWidget.init({ apiBase: lumenBase, currentEpreuve: 9 });
           }
         };
         document.head.appendChild(script);
       })();
     </script>
-
-    <div class="w-full max-w-lg mx-auto space-y-8 mt-10">
-
-        <header class="text-center mb-6">
-            <h1 class="title-font text-3xl sm:text-4xl text-white mb-2 tracking-wider" style="color: var(--color-success);">
-                RÉUSSITE !
-            </h1>
-            <p class="text-xl text-white font-semibold mb-6">
-                Vous avez trouvé la dernière partie du code secret :
-            </p>
-            
-            <div class="card p-4 rounded-xl inline-block border-2 border-dashed" style="border-color: var(--color-accent-rose);">
-                <p class="title-font text-4xl sm:text-5xl tracking-widest" style="color: var(--color-success);">
-                    1NT </p>
-            </div>
-            
-            <div class="mt-8 p-4 rounded-xl" style="background-color: var(--color-secondary-bg); border: 1px solid var(--color-accent-bleu);">
-                <p class="text-xl font-medium" style="color: var(--color-text-light);">
-                    Félicitations !<br> 
-                    Il ne vous reste plus qu'à <strong>fusionner les trois codes secrets</strong> trouvés pour obtenir le code final.
-                </p>
-            </div>
-        </header>
-
-    </div>
 
 </body>
 </html>

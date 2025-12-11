@@ -9,10 +9,6 @@
     --color-success: #00ff9d;
 }
 
-* {
-    box-sizing: border-box;
-}
-
 body {
     background-color: var(--color-primary-bg);
     color: var(--color-text-light);
@@ -21,89 +17,26 @@ body {
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    min-height: 100dvh; /* Dynamic viewport height for mobile */
-    padding: 0.75rem;
-    margin: 0;
-    -webkit-text-size-adjust: 100%;
+    padding: 1rem;
 }
-
 .title-font { font-family: 'Space Grotesk', sans-serif; }
-
-/* Container principal - mobile first */
-.w-full.max-w-lg {
-    width: 100%;
-    max-width: 100%;
-    padding: 0;
-    margin-top: 0.5rem !important;
-}
-
-/* Header responsive */
-header h1 {
-    font-size: 1.25rem !important;
-    line-height: 1.3;
-    padding: 0 0.25rem;
-}
-
-header p {
-    font-size: 0.95rem !important;
-    padding: 0 0.5rem;
-}
-
 .card {
     background-color: var(--color-secondary-bg);
     border: 2px solid var(--color-accent-bleu);
-    box-shadow: 0 0 15px rgba(9, 199, 223, 0.3);
-    padding: 0.75rem !important;
-    margin: 0 0.25rem;
+    box-shadow: 0 0 20px rgba(9, 199, 223, 0.3);
 }
 
-.card h2 {
-    font-size: 0.95rem !important;
-    margin-bottom: 0.75rem;
-}
-
-.card p {
-    font-size: 0.85rem !important;
-}
-
-/* Images responsive */
-#image-plan-container,
-.w-full.bg-gray-800 {
-    padding: 0.25rem !important;
-}
-
-#image-plan-container img,
-.w-full.bg-gray-800 img {
-    width: 100%;
-    height: auto;
-    max-height: 50vh;
-    object-fit: contain;
-    border-radius: 8px;
-}
-
-/* Bouton néon - tactile friendly */
+/* Styles pour les boutons NEON (accent rose par défaut) */
 .neon-button {
     transition: all 0.3s ease;
     box-shadow: 0 0 5px var(--color-accent-rose), 0 0 10px var(--color-accent-rose), 0 0 20px rgba(252, 16, 202, 0.4);
     border: 2px solid var(--color-accent-rose);
-    font-size: 0.9rem !important;
-    padding: 0.875rem 1.5rem !important;
-    min-height: 48px; /* Touch target minimum */
-    width: 100%;
-    max-width: 280px;
 }
-
-.neon-button:hover,
-.neon-button:active {
+.neon-button:hover {
     background-color: var(--color-accent-rose);
     color: var(--color-primary-bg);
     transform: translateY(-2px);
     box-shadow: 0 0 10px var(--color-accent-rose), 0 0 30px var(--color-accent-rose), 0 0 60px rgba(252, 16, 202, 0.6);
-}
-
-/* Active state for touch */
-.neon-button:active {
-    transform: scale(0.98);
 }
 
 /* --- Styles pour la Pop-up Modale --- */
@@ -113,199 +46,38 @@ header p {
     left: 0;
     width: 100%;
     height: 100%;
-    height: 100dvh;
-    background-color: rgba(0, 0, 0, 0.92);
+    background-color: rgba(0, 0, 0, 0.85); /* Fond sombre */
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    padding: 1rem;
 }
-
 .modal-content {
     background-color: var(--color-secondary-bg);
-    border: 2px solid var(--color-accent-bleu);
-    border-radius: 16px;
-    padding: 1.25rem;
-    max-width: 95%;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
+    border: 3px solid var(--color-accent-bleu);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 90%;
+    width: 450px;
     text-align: center;
-    box-shadow: 0 0 30px rgba(9, 199, 223, 0.5);
+    box-shadow: 0 0 30px rgba(9, 199, 223, 0.5); /* Néon bleu */
 }
 
+/* Titre de la modale (changé en couleur succès ou rose dans d'autres contextes) */
 .modal-title {
-    color: var(--color-accent-rose);
-    margin-bottom: 0.75rem;
-    font-size: 1.25rem !important;
-    line-height: 1.3;
-}
-
-.modal-content p {
-    font-size: 0.95rem !important;
+    color: var(--color-success); /* Utilisé la couleur succès pour la validation/titre final */
     margin-bottom: 1rem;
 }
 
+/* Bouton dans la modale (couleur succès) */
 .modal-button {
     transition: all 0.3s ease;
     box-shadow: 0 0 5px var(--color-success), 0 0 10px var(--color-success), 0 0 20px rgba(0, 255, 157, 0.4);
     border: 2px solid var(--color-success);
-    font-size: 0.9rem !important;
-    padding: 0.875rem 1.25rem !important;
-    min-height: 48px;
-    width: 100%;
-    max-width: 300px;
 }
-
-.modal-button:hover,
-.modal-button:active {
+.modal-button:hover {
     background-color: var(--color-success);
     color: var(--color-primary-bg);
     transform: translateY(-2px);
     box-shadow: 0 0 10px var(--color-success), 0 0 30px var(--color-success), 0 0 60px rgba(0, 255, 157, 0.6);
-}
-
-/* Section révélée */
-#revealed-image-section {
-    margin-top: 1rem !important;
-}
-
-/* Page de succès finale */
-.inline-block.card {
-    display: block !important;
-    margin: 0 auto;
-    padding: 1rem !important;
-}
-
-.inline-block.card p {
-    font-size: 2rem !important;
-}
-
-/* Code secret display */
-.tracking-widest {
-    letter-spacing: 0.15em;
-}
-
-/* Spacing adjustments */
-.space-y-8 > * + * {
-    margin-top: 1rem !important;
-}
-
-.mt-10 {
-    margin-top: 0.5rem !important;
-}
-
-.mt-8 {
-    margin-top: 1.5rem !important;
-}
-
-.mb-6 {
-    margin-bottom: 1rem !important;
-}
-
-/* ===== TABLET & DESKTOP (min 640px) ===== */
-@media (min-width: 640px) {
-    body {
-        padding: 1.5rem;
-    }
-    
-    .w-full.max-w-lg {
-        max-width: 32rem;
-        margin-top: 2rem !important;
-    }
-    
-    header h1 {
-        font-size: 1.75rem !important;
-    }
-    
-    header p {
-        font-size: 1.125rem !important;
-    }
-    
-    .card {
-        padding: 1.5rem !important;
-        margin: 0;
-    }
-    
-    .card h2 {
-        font-size: 1.125rem !important;
-    }
-    
-    .card p {
-        font-size: 1rem !important;
-    }
-    
-    .neon-button {
-        font-size: 1.1rem !important;
-        padding: 1rem 2rem !important;
-        width: auto;
-    }
-    
-    .modal-content {
-        padding: 2rem;
-        max-width: 450px;
-    }
-    
-    .modal-title {
-        font-size: 1.75rem !important;
-    }
-    
-    .modal-content p {
-        font-size: 1.1rem !important;
-    }
-    
-    .modal-button {
-        font-size: 1.1rem !important;
-        padding: 1rem 2rem !important;
-        width: auto;
-    }
-    
-    .inline-block.card p {
-        font-size: 2.5rem !important;
-    }
-    
-    .space-y-8 > * + * {
-        margin-top: 2rem !important;
-    }
-    
-    .mt-10 {
-        margin-top: 2.5rem !important;
-    }
-}
-
-/* ===== LARGE SCREENS (min 768px) ===== */
-@media (min-width: 768px) {
-    header h1 {
-        font-size: 2rem !important;
-    }
-    
-    .inline-block.card p {
-        font-size: 3rem !important;
-    }
-}
-
-/* Safe area for notched phones */
-@supports (padding: max(0px)) {
-    body {
-        padding-left: max(0.75rem, env(safe-area-inset-left));
-        padding-right: max(0.75rem, env(safe-area-inset-right));
-        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-    }
-}
-
-/* Hidden class */
-.hidden {
-    display: none !important;
-}
-
-/* ===== WIDGETS LUMEN - Cacher sur mobile pour cette épreuve ===== */
-/* Sur mobile, les widgets gênent l'affichage des plans/images */
-@media (max-width: 768px) {
-    #lumen-widget,
-    #dsin-widget,
-    .lumen-widget,
-    .dsin-widget {
-        display: none !important;
-    }
 }
