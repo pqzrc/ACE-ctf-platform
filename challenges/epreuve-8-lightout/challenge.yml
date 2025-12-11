@@ -8,7 +8,7 @@ value: 100
 type: "standard"
 state: "visible"
 
-connection_info: "http://puzzle-dispositif.challenges.vizyondijital.fr"
+connection_info: "https://dsin-dashboard.challenges.vizyondijital.fr"
 
 flags:
   - "ACE{L8TS0UT5G}"
