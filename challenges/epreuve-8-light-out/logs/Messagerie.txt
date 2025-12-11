@@ -1,0 +1,11 @@
+[2025-12-10 07:00:05] INFO: Serveur Exchange 2019 démarré sur MAIL-PROD-01
+[2025-12-10 07:00:12] SUCCESS: Connecteurs SMTP configurés et actifs
+[2025-12-10 07:15:28] WARNING: E-mail suspect détecté - Expéditeur: 'support@amaz0n.com'
+[2025-12-10 07:30:42] ALERT: Tentative de phishing bloquée - 15 destinataires protégés
+[2025-12-10 07:45:55] INFO: Scan antivirus des pièces jointes - 247 fichiers analysés
+[2025-12-10 08:00:18] ERROR: File d'attente SMTP bloquée - 89 messages en attente
+[2025-12-10 08:15:33] SUCCESS: Redémarrage du service Transport - File d'attente purgée
+[2025-12-10 08:30:47] WARNING: Volume élevé d'e-mails sortants du compte 'marketing@univ-antilles.fr'
+[2025-12-10 08:45:52] INFO: Sauvegarde des boîtes aux lettres initiée - 1247 comptes
+[2025-12-10 09:00:15] SUCCESS: Politique anti-spam mise à jour - 95% de précision
+

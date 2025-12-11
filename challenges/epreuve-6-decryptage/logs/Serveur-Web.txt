@@ -1,0 +1,11 @@
+[2025-12-10 10:00:12] INFO: Démarrage d'Apache 2.4.54 sur WEB-PROD-01
+[2025-12-10 10:00:15] SUCCESS: VirtualHost chargés - 8 sites actifs
+[2025-12-10 10:05:28] WARNING: Charge CPU élevée - 87% sur core #2
+[2025-12-10 10:10:42] INFO: Certificat SSL renouvelé pour domaine 'app.univ-antilles.fr'
+[2025-12-10 10:15:56] ERROR: Erreur 500 sur /api/users/export - Exception non gérée
+[2025-12-10 10:20:13] ALERT: Tentative d'accès à fichier système - Requête bloquée
+[2025-12-10 10:25:37] WARNING: Nombre de requêtes simultanées: 1247 (seuil d'alerte: 1000)
+[2025-12-10 10:30:44] INFO: Cache Varnish purgé - 2.3 GB libérés
+[2025-12-10 10:35:58] SUCCESS: Déploiement de la version 2.4.1 complété sans erreur
+[2025-12-10 10:40:22] WARNING: Bot malveillant détecté - User-Agent suspect bloqué
+

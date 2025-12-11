@@ -1,0 +1,11 @@
+[2025-12-10 02:00:00] INFO: Lancement de la sauvegarde nocturne complète
+[2025-12-10 02:00:15] SUCCESS: Connexion au stockage NAS établie
+[2025-12-10 02:15:42] INFO: Sauvegarde du serveur SRV-FILE-01 - Progression: 23%
+[2025-12-10 02:45:28] INFO: Sauvegarde du serveur SRV-FILE-01 - Progression: 67%
+[2025-12-10 03:15:55] SUCCESS: Sauvegarde SRV-FILE-01 complétée - 3.2 TB transférés
+[2025-12-10 03:20:12] INFO: Démarrage sauvegarde base de données DB-PROD-01
+[2025-12-10 03:35:47] ERROR: Échec de sauvegarde DB-PROD-02 - Espace disque insuffisant
+[2025-12-10 03:40:23] WARNING: Bande magnétique LTO-8 #0042 presque pleine (92%)
+[2025-12-10 04:00:38] SUCCESS: Sauvegarde complète terminée - 8.7 TB archivés
+[2025-12-10 04:15:52] INFO: Vérification d'intégrité des sauvegardes - Tous les checksums OK
+
