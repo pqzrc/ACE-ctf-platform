@@ -1,0 +1,38 @@
+# Challenge: Épreuve 9 - Traçage du Signal
+# Type: Physique - QR Codes à scanner
+
+name: "Épreuve 9 - Traçage du Signal"
+category: "Terrain"
+description: |
+  ## Mission : Localiser le Dispositif de L.U.M.E.N.
+  
+  L.U.M.E.N. brouille les pistes ! Vous devez tracer le signal en **3 étapes** pour localiser le dispositif caché.
+  
+  **Votre mission :**
+  1. Accéder à l'interface de traçage
+  2. Consulter le plan pour identifier la zone du premier QR Code
+  3. Vous rendre physiquement à l'emplacement indiqué
+  4. Scanner le QR Code physique pour obtenir l'étape suivante
+  5. Répéter jusqu'à localiser le dispositif final
+  
+  **Important :** Cette épreuve nécessite de vous déplacer physiquement dans les locaux !
+  
+  Bonne traque, Agent !
+
+value: 100
+type: standard
+state: visible
+
+connection_info: "http://epreuve9.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{R4044Z0MF}"
+
+
+
+tags:
+  - "qr-code"
+  - "terrain"
+  - "physique"
+  - "traque"
+

@@ -1,0 +1,35 @@
+# Challenge: Épreuve 3 - Captcha Echappatoire
+# Type: Web - Challenge CAPTCHA
+
+name: "Épreuve 3 - Captcha Echappatoire"
+category: "Authentification"
+description: |
+  ## Mission : Authentification par CAPTCHA
+  
+  L.U.M.E.N. a verrouillé l'accès au tableau de bord avec un système CAPTCHA sophistiqué.
+  
+  **Votre mission :**
+  1. Vous connecter avec les identifiants Admin
+  2. Résoudre le CAPTCHA en sélectionnant les bonnes images
+  3. Prouver que vous n'êtes pas un robot pour déverrouiller le système
+  
+  **Attention :** Le temps est compté ! Soyez précis et rapide.
+  
+  Identifiants par défaut : `Admin` et `1234`
+
+value: 100
+type: standard
+state: visible
+
+connection_info: "http://epreuve3.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{CDHWGUS2M}"
+
+
+
+tags:
+  - "captcha"
+  - "authentification"
+  - "reconnaissance"
+

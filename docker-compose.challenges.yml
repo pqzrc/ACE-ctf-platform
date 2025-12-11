@@ -1,0 +1,210 @@
+# Docker Compose pour les Challenges ACE 2025
+# Ce fichier définit tous les conteneurs des épreuves
+
+name: ace-challenges
+
+services:
+  # =====================================================
+  # REVERSE PROXY - Traefik pour le routage des challenges
+  # =====================================================
+  traefik:
+    image: traefik:v3.0
+    restart: always
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --log.level=INFO
+    ports:
+      - "8081:80"      # Port principal des challenges (via Apache reverse proxy)
+      - "8082:8080"    # Dashboard Traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =====================================================
+  # ÉPREUVE 1 - Identifier le Phishing
+  # =====================================================
+  epreuve1-phishing:
+    build:
+      context: ./challenges/epreuve-1-phishing
+      dockerfile: Dockerfile
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.epreuve1.rule=Host(`epreuve1.challenges.vizyondijital.fr`) || Host(`epreuve1.localhost`)
+      - traefik.http.routers.epreuve1.entrypoints=web
+      - traefik.http.services.epreuve1.loadbalancer.server.port=80
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =====================================================
+  # ÉPREUVE 2 - Mot de Passe Sécurisé
+  # =====================================================
+  epreuve2-mot-de-passe:
+    build:
+      context: ./challenges/epreuve-2-mot-de-passe
+      dockerfile: Dockerfile
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.epreuve2.rule=Host(`epreuve2.challenges.vizyondijital.fr`) || Host(`epreuve2.localhost`)
+      - traefik.http.routers.epreuve2.entrypoints=web
+      - traefik.http.services.epreuve2.loadbalancer.server.port=80
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =====================================================
+  # ÉPREUVE 3 - Captcha Echappatoire
+  # =====================================================
+  epreuve3-captcha:
+    build:
+      context: ./challenges/epreuve-3-captcha
+      dockerfile: Dockerfile
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.epreuve3.rule=Host(`epreuve3.challenges.vizyondijital.fr`) || Host(`epreuve3.localhost`)
+      - traefik.http.routers.epreuve3.entrypoints=web
+      - traefik.http.services.epreuve3.loadbalancer.server.port=80
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =====================================================
+  # ÉPREUVE 4 - QCM Université
+  # =====================================================
+  epreuve4-qcm:
+    build:
+      context: ./challenges/epreuve-4-qcm
+      dockerfile: Dockerfile
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.epreuve4.rule=Host(`epreuve4.challenges.vizyondijital.fr`) || Host(`epreuve4.localhost`)
+      - traefik.http.routers.epreuve4.entrypoints=web
+      - traefik.http.services.epreuve4.loadbalancer.server.port=80
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =====================================================
+  # ÉPREUVE 6 - Décryptage des Logs
+  # =====================================================
+  epreuve6-decryptage:
+    build:
+      context: ./challenges/epreuve-6-decryptage
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - PORT=3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.epreuve6.rule=Host(`epreuve6.challenges.vizyondijital.fr`) || Host(`epreuve6.localhost`)
+      - traefik.http.routers.epreuve6.entrypoints=web
+      - traefik.http.services.epreuve6.loadbalancer.server.port=3000
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =====================================================
+  # ÉPREUVE 8 - Light Out
+  # =====================================================
+  epreuve8-light-out:
+    build:
+      context: ./challenges/epreuve-8-light-out
+      dockerfile: Dockerfile
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.epreuve8.rule=Host(`epreuve8.challenges.vizyondijital.fr`) || Host(`epreuve8.localhost`)
+      - traefik.http.routers.epreuve8.entrypoints=web
+      - traefik.http.services.epreuve8.loadbalancer.server.port=80
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =====================================================
+  # ÉPREUVE 9 - Récupération du Dispositif
+  # =====================================================
+  epreuve9-recuperation-dispositif:
+    build:
+      context: ./challenges/epreuve-9-recuperation-dispositif
+      dockerfile: Dockerfile
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.epreuve9.rule=Host(`epreuve9.challenges.vizyondijital.fr`) || Host(`epreuve9.localhost`)
+      - traefik.http.routers.epreuve9.entrypoints=web
+      - traefik.http.services.epreuve9.loadbalancer.server.port=80
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =====================================================
+  # LUMEN - Chat IA omniscient
+  # =====================================================
+  lumen-chat:
+    build:
+      context: ./challenges/lumen/server-php
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lumen.rule=Host(`lumen.challenges.vizyondijital.fr`) || Host(`lumen.localhost`)
+      - traefik.http.routers.lumen.entrypoints=web
+      - traefik.http.services.lumen.loadbalancer.server.port=80
+    networks:
+      - challenges-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+# =====================================================
+# RÉSEAU
+# =====================================================
+networks:
+  challenges-network:
+    driver: bridge
+

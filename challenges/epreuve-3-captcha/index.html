@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-mode">
+
+    <div id="login-section">
+        <div class="uni-header">
+            <h2>Tableau de bord</h2>
+            <p>Authentification Requise : Epreuve 3</p>
+        </div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Identifiant Agent</label>
+                <input type="text" id="username" placeholder="ACE_User" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="password">Code d'accès</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" id="login-btn">Initialiser le protocole</button>
+        </form>
+        <div class="uni-footer">
+            <p>Système sécurisé par ACE Protocol v25.0<br>Toute tentative d'intrusion sera logguée.</p>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div id="left-section">
+            <h1 id="game-title">Captcha<br>Echappatoire</h1>
+            <h2 id="captcha-title">Sélectionnez : <br><span id="theme-name"></span></h2>
+        </div>
+
+        <div id="center-section">
+            <div id="image-grid" class="grid-3x3">
+                <div class="tile" data-index="0"></div>
+                <div class="tile" data-index="1"></div>
+                <div class="tile" data-index="2"></div>
+                <div class="tile" data-index="3"></div>
+                <div class="tile" data-index="4"></div>
+                <div class="tile" data-index="5"></div>
+                <div class="tile" data-index="6"></div>
+                <div class="tile" data-index="7"></div>
+                <div class="tile" data-index="8"></div>
+            </div>
+            <button id="verify-button">Vérifier et Prier</button>
+        </div>
+
+        <div id="right-section">
+            <div id="timer-display">
+                <span id="time-value">00:00</span>
+            </div>
+        </div>
+    </div>  
+
+    <div id="custom-cursor"></div>
+
+    <!-- Popup Overlay -->
+    <div id="popup-overlay">
+        <div id="popup-content">
+            <h2 id="popup-title">Titre</h2>
+            <div id="popup-message">Message</div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="loader-content">
+            <div class="cyber-spinner"></div>
+            <h3>VÉRIFICATION...</h3>
+            <p>Analyse de l'intégrité de la session</p>
+        </div>
+    </div>
+
+    <!-- Widget LUMEN/DSIN -->
+    <script>
+      // Dériver automatiquement l'URL de LUMEN à partir de l'URL actuelle
+      (function() {
+        const loc = window.location;
+        // Remplacer le sous-domaine (epreuveX) par "lumen"
+        // Ex: epreuve3.localhost:8081 → lumen.localhost:8081
+        // Ex: epreuve3.challenges.vizyondijital.fr → lumen.challenges.vizyondijital.fr
+        const hostParts = loc.hostname.split('.');
+        hostParts[0] = 'lumen';
+        const lumenHost = hostParts.join('.');
+        const lumenBase = loc.protocol + '//' + lumenHost + (loc.port ? ':' + loc.port : '');
+        
+        window.LUMEN_CONFIG = { apiBase: lumenBase, currentEpreuve: 3 };
+
+        const script = document.createElement('script');
+        script.src = lumenBase + '/public/widget/lumen-widget.js';
+        script.onload = function() {
+          if (typeof LumenWidget !== 'undefined') {
+            LumenWidget.init(window.LUMEN_CONFIG);
+          }
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

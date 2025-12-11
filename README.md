@@ -81,15 +81,31 @@ ACE-ctf-platform/
 
 ## 🎮 Challenges Intégrés
 
-5 challenges de test pré-configurés :
+6 épreuves du Cyber Escape ACE 2025 :
 
-1. **test1** - Challenge statique HTML
-2. **test2** - Challenge avec code source
-3. **test3** - Challenge avec fichier à télécharger
-4. **test4** - Challenge avec formulaire
-5. **test5** - Challenge de calcul
+| N° | Épreuve | Catégorie | Points |
+|----|---------|-----------|--------|
+| 1 | Identifier le Phishing | Sensibilisation | 100 |
+| 2 | Mot de Passe Sécurisé | Sécurité | 150 |
+| 3 | Captcha Echappatoire | Authentification | 125 |
+| 6 | Décryptage des Logs | Cryptographie | 175 |
+| 8 | Light Out | Logique | 150 |
+| 9 | Récupération du Dispositif | Terrain | 200 |
 
-Accès via : http://test1.challenges.vizyondijital.fr (en production)
+### Accès aux Challenges
+
+**Développement local :**
+```bash
+make challenges-start
+```
+- Épreuve 1 : http://epreuve1.localhost:8081
+- Épreuve 2 : http://epreuve2.localhost:8081
+- Épreuve 3 : http://epreuve3.localhost:8081
+- Épreuve 6 : http://epreuve6.localhost:8081
+- Épreuve 8 : http://epreuve8.localhost:8081
+- Épreuve 9 : http://epreuve9.localhost:8081
+
+**Production :** https://epreuve1.challenges.vizyondijital.fr (etc.)
 
 ## 🔧 Configuration
 

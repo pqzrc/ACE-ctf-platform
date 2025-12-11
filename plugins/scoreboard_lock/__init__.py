@@ -9,12 +9,16 @@ logger = logging.getLogger(__name__)
 def load(app):
     """
     Plugin to lock the scoreboard during the event
+    Scoreboard is unlocked at RESULTS_RELEASE_TIME (after prizes ceremony)
     """
     # Get event times from environment variables
     event_start = os.getenv('EVENT_START_TIME')
     event_end = os.getenv('EVENT_END_TIME')
+    # RESULTS_RELEASE_TIME = moment où le classement est publié (après remise des prix)
+    # Fallback sur EVENT_END_TIME si non défini
+    results_release = os.getenv('RESULTS_RELEASE_TIME', event_end)
     
-    logger.info(f"✅ Plugin scoreboard_lock chargé - Verrouillage du scoreboard jusqu'à {event_end}")
+    logger.info(f"✅ Plugin scoreboard_lock chargé - Classement visible à partir de {results_release}")
     
     @app.before_request
     def check_scoreboard_access():
@@ -28,19 +32,17 @@ def load(app):
         try:
             start_time = datetime.fromisoformat(event_start.replace('Z', '+00:00'))
             end_time = datetime.fromisoformat(event_end.replace('Z', '+00:00'))
+            release_time = datetime.fromisoformat(results_release.replace('Z', '+00:00'))
         except Exception as e:
             logger.error(f"❌ Erreur parsing dates: {e}")
             return None
         
-        # After event - allow normal access
-        if now >= end_time:
+        # After results release time - allow normal access
+        if now >= release_time:
             return None
         
         # Before or during event - show locked page
         status = 'before' if now < start_time else 'during'
-        
-        # Format date for display
-       
         
         template = """
 {% extends "base.html" %}
@@ -64,8 +66,8 @@ def load(app):
                     <h2 class="mb-3">L'événement n'a pas encore commencé</h2>
                     <p class="text-muted mb-4">Début de l'épreuve dans :</p>
                 {% else %}
-                    <h2 class="mb-3">Le classement sera disponible après l'épreuve</h2>
-                    <p class="text-muted mb-4">Fin de l'épreuve dans :</p>
+                    <h2 class="mb-3">Le classement sera disponible après la remise des prix</h2>
+                    <p class="text-muted mb-4">Publication du classement dans :</p>
                 {% endif %}
                 
                 <div class="row mt-5 justify-content-center" id="countdown">
@@ -108,12 +110,12 @@ def load(app):
 <script>
     const status = '{{ status }}';
     const startTime = new Date('{{ start_time }}').getTime();
-    const endTime = new Date('{{ end_time }}').getTime();
+    const releaseTime = new Date('{{ release_time }}').getTime();
 
     function updateCountdown() {
         const now = new Date().getTime();
-        // Before event: count to start, during event: count to end
-        const targetTime = status === 'before' ? startTime : endTime;
+        // Before event: count to start, during/after event: count to release time
+        const targetTime = status === 'before' ? startTime : releaseTime;
         const diff = targetTime - now;
 
         if (diff <= 0) {
@@ -138,4 +140,4 @@ def load(app):
 {% endblock %}
 """
         
-        return render_template_string(template, status=status, start_time=event_start, end_time=event_end)
+        return render_template_string(template, status=status, start_time=event_start, release_time=results_release)

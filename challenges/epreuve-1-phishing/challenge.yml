@@ -1,0 +1,34 @@
+# Challenge: Épreuve 1 - Phishing
+# Type: Web - Identifier l'email frauduleux
+
+name: "Épreuve 1 - Identifier le Phishing"
+category: "Sensibilisation"
+description: |
+  ## Mission : Boîte Mail Compromise
+  
+  L.U.M.E.N. a infiltré votre boîte mail professionnelle avec un email de phishing.
+  
+  **Votre mission :**
+  - Examiner attentivement tous les emails
+  - Identifier les indicateurs de phishing (expéditeur suspect, liens douteux, pièces jointes dangereuses)
+  - Signaler l'email frauduleux
+  
+  
+  Bonne chance, Agent !
+
+value: 100
+type: standard
+state: visible
+
+connection_info: "http://epreuve1.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{P7MOZXL4M}"
+
+
+
+tags:
+  - "phishing"
+  - "sensibilisation"
+  - "email"
+

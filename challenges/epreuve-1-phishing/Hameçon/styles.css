@@ -1,0 +1,380 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap');
+
+:root {
+  --bg: #050511;
+  --card: #0f0e4a;
+  --accent-pink: #fc10ca;
+  --accent-blue: #09c7df;
+  --text: #ffffff;
+  --text-light: #f6f2f9;
+  --success: #00ff9d;
+  --error: #ff0055;
+  --warning: #ffbe0b;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 18px;
+  padding: 12px;
+  max-width: 1300px;
+  margin: 0 auto;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.panel {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mail-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: rgba(4, 0, 255, 0.336);
+  border: 1px solid rgb(255, 255, 255);
+  color: #fff;
+}
+
+.search {
+  display: flex;
+  gap: 8px;
+}
+
+.search input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: var(--text-light);
+}
+
+.search input::placeholder {
+  color: var(--text-light);
+}
+
+.mail-list {
+  overflow: auto;
+  height: 64vh;
+  padding-right: 6px;
+}
+
+.mail-list,
+.mail-view {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-blue) transparent;
+}
+
+.mail-list::-webkit-scrollbar,
+.mail-view::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.mail-list::-webkit-scrollbar-track,
+.mail-view::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.mail-list::-webkit-scrollbar-thumb,
+.mail-view::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(9,199,223,0.2), rgba(252,16,202,0.3));
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+
+.mail-list::-webkit-scrollbar-thumb:hover,
+.mail-view::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(9,199,223,0.4), rgba(252,16,202,0.5));
+}
+
+.mail-item {
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  
+  /* MODIFICATIONS ICI : */
+  background: rgba(255, 255, 255, 0.02); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  
+  transition: all 0.2s;
+}
+
+.mail-item:hover {
+  background: rgba(16, 126, 252, 0.08); 
+  border-color: rgba(20, 16, 252, 0.3); 
+}
+
+.mail-item.unread {
+  border-left: 4px solid var(--accent-blue);
+}
+
+.mail-meta {
+  flex: 1;
+}
+
+.mail-from {
+  font-weight: 700;
+  font-size: 14px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.mail-sub {
+  color: var(--text-light);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.mail-date {
+  font-size: 12px;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.mail-view {
+  padding: 18px;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.mail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subject {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+button {
+  background: transparent;
+  border: 1px solid var(--text-light);
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+button.primary {
+  background: linear-gradient(90deg, var(--accent-pink), var(--accent-blue));
+  border: 0;
+  color: var(--bg);
+  font-weight: 700;
+}
+
+button.danger {
+  background: linear-gradient(90deg, var(--error), #ff0055);
+  border: 0;
+  color: var(--bg);
+  font-weight: 700;
+}
+
+.details {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+footer {
+  margin-top: 10px;
+  color: var(--text-light);
+  font-size: 13px;
+  text-align: center;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 5, 17, 0.85);
+  backdrop-filter: blur(4px); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.popup-box {
+  background: linear-gradient(145deg, var(--card), #15156b);
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  max-width: 400px;
+  width: 90%;
+  animation: popupScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.popup-box h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  margin: 0 0 12px 0;
+  color: #fff;
+}
+
+.popup-box p {
+  color: var(--text-light);
+  font-size: 15px;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.popup-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.popup-actions button {
+  flex: 1;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.btn-confirm {
+  background: linear-gradient(90deg, var(--error), #ff0055) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.btn-cancel {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+}
+
+/* ... (Le début du CSS popup reste pareil) ... */
+
+.popup-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.popup-actions button {
+  flex: 1;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out; /* Animation fluide */
+}
+
+/* Bouton CONFIRMER (Rouge) */
+.btn-confirm {
+  background: linear-gradient(90deg, var(--error), #ff0055) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
+}
+
+.btn-confirm:hover {
+  filter: brightness(1.15); /* Devient plus lumineux */
+  transform: translateY(-2px); /* Monte légèrement */
+  box-shadow: 0 6px 20px rgba(255, 0, 85, 0.5); /* Ombre plus forte */
+}
+
+/* Bouton ANNULER (Transparent) */
+.btn-cancel {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  color: var(--text-light) !important;
+}
+
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1) !important; /* Fond blanc léger */
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popupScale { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+@media (max-width: 1000px) {
+  .app {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+}
+

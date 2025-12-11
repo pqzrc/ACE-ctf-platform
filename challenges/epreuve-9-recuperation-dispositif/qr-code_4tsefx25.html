@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bravo - Code Final</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Widget LUMEN/DSIN -->
+    <script>
+      // Dériver automatiquement l'URL de LUMEN à partir de l'URL actuelle
+      (function() {
+        const loc = window.location;
+        const hostParts = loc.hostname.split('.');
+        hostParts[0] = 'lumen';
+        const lumenHost = hostParts.join('.');
+        const lumenBase = loc.protocol + '//' + lumenHost + (loc.port ? ':' + loc.port : '');
+        
+        window.LUMEN_CONFIG = { apiBase: lumenBase, currentEpreuve: 9 };
+
+        const script = document.createElement('script');
+        script.src = lumenBase + '/public/widget/lumen-widget.js';
+        script.onload = function() {
+          if (typeof LumenWidget !== 'undefined') {
+            LumenWidget.init(window.LUMEN_CONFIG);
+            // Cette page est la page de succès finale - notifier le succès
+            LumenWidget.reportEpreuveResult(9, true);
+          }
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
+
+    <div class="w-full max-w-lg mx-auto space-y-8 mt-10">
+
+        <header class="text-center mb-6">
+            <h1 class="title-font text-3xl sm:text-4xl text-white mb-2 tracking-wider" style="color: var(--color-success);">
+                RÉUSSITE !
+            </h1>
+            <p class="text-xl text-white font-semibold mb-6">
+                Vous avez trouvé la dernière partie du code secret :
+            </p>
+            
+            <div class="card p-4 rounded-xl inline-block border-2 border-dashed" style="border-color: var(--color-accent-rose);">
+                <p class="title-font text-4xl sm:text-5xl tracking-widest" style="color: var(--color-success);">
+                    1NT </p>
+            </div>
+            
+            <div class="mt-8 p-4 rounded-xl" style="background-color: var(--color-secondary-bg); border: 1px solid var(--color-accent-bleu);">
+                <p class="text-xl font-medium" style="color: var(--color-text-light);">
+                    Félicitations !<br> 
+                    Il ne vous reste plus qu'à <strong>fusionner les trois codes secrets</strong> trouvés pour obtenir le code final.
+                </p>
+            </div>
+        </header>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+# Challenge: Épreuve 6 - Logs Système Corrompus
+# Type: Web - Décryptage de logs
+
+name: "Épreuve 6 - Décryptage des Logs"
+category: "Cryptographie"
+description: |
+  ## Mission : Analyse des Logs Corrompus
+  
+  L.U.M.E.N. a chiffré les logs système de l'université. La DSIN vous demande de les décrypter pour identifier les dégâts.
+  
+  **Votre mission :**
+  1. Accéder à l'interface des logs système
+  2. Analyser les différents événements chiffrés
+  3. Utiliser les outils d'analyse pour identifier la méthode de chiffrement
+  4. Décrypter manuellement les logs pour trouver le flag
+  
+  **Méthodes potentielles :**
+  - ROT (rotation de caractères)
+  - César (décalage alphabétique)
+  - Inversion
+  
+  L'IA L.U.M.E.N. vous fournit des indices, mais le décryptage final est manuel !
+
+value: 100
+type: standard
+state: visible
+
+connection_info: "http://epreuve6.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{DT90KGNEF}"
+
+
+tags:
+  - "cryptographie"
+  - "rot13"
+  - "logs"
+  - "analyse"
+

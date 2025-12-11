@@ -1,9 +1,10 @@
-.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell import-challenges deploy pull push
+.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell import-challenges deploy pull push challenges-start challenges-stop challenges-logs
 
 # ACE CTFd Platform - Makefile (Production)
 # Usage: make <commande>
 
 DOCKER_COMPOSE = docker compose
+DOCKER_COMPOSE_CHALLENGES = docker compose -f docker-compose.challenges.yml
 
 help: ## Afficher l'aide
 	@echo ""
@@ -140,9 +141,54 @@ import-challenges: ## Importer les challenges dans CTFd
 
 list-challenges: ## Lister les challenges disponibles
 	@echo "Challenges disponibles dans ./challenges:"
-	@ls -1 challenges/ | grep -E '^test[0-9]' | nl
+	@echo ""
+	@for dir in challenges/*/; do \
+		if [ -f "$$dir/challenge.yml" ]; then \
+			name=$$(basename "$$dir"); \
+			echo "  ✓ $$name"; \
+		fi; \
+	done
 	@echo ""
 	@echo "Pour les importer: make import-challenges"
+
+# --- Gestion des Challenges (Épreuves) ---
+
+challenges-start: ## Démarrer les challenges (épreuves)
+	@echo "Démarrage des challenges ACE..."
+	$(DOCKER_COMPOSE_CHALLENGES) up -d
+	@echo ""
+	@echo "Challenges démarrés:"
+	@echo "  Épreuve 1 (Phishing):    http://epreuve1.localhost:8081"
+	@echo "  Épreuve 2 (Password):    http://epreuve2.localhost:8081"
+	@echo "  Épreuve 3 (Captcha):     http://epreuve3.localhost:8081"
+	@echo "  Épreuve 6 (Logs):        http://epreuve6.localhost:8081"
+	@echo "  Épreuve 8 (Light Out):   http://epreuve8.localhost:8081"
+	@echo "  Épreuve 9 (QR Code):     http://epreuve9.localhost:8081"
+	@echo ""
+	@echo "  Traefik Dashboard:       http://localhost:8082"
+	@echo ""
+	@echo "Note: Ajoutez ces entrées à /etc/hosts:"
+	@echo "  127.0.0.1 epreuve1.localhost epreuve2.localhost epreuve3.localhost epreuve6.localhost epreuve8.localhost epreuve9.localhost"
+
+challenges-stop: ## Arrêter les challenges
+	$(DOCKER_COMPOSE_CHALLENGES) down
+	@echo "Challenges arrêtés"
+
+challenges-restart: ## Redémarrer les challenges
+	$(DOCKER_COMPOSE_CHALLENGES) restart
+	@echo "Challenges redémarrés"
+
+challenges-rebuild: ## Rebuild et redémarrer les challenges
+	@echo "Reconstruction des challenges..."
+	$(DOCKER_COMPOSE_CHALLENGES) up -d --build
+	@echo "Challenges reconstruits et redémarrés"
+
+challenges-logs: ## Logs des challenges
+	$(DOCKER_COMPOSE_CHALLENGES) logs -f --tail=100
+
+challenges-status: ## État des challenges
+	@echo "État des challenges:"
+	@$(DOCKER_COMPOSE_CHALLENGES) ps
 
 # --- Nettoyage ---
 

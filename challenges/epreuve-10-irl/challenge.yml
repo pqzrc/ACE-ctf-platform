@@ -1,0 +1,34 @@
+# Challenge: Épreuve 10 - Challenge IRL (In Real Life)
+# Type: Physique - Challenge en présentiel
+
+name: "Épreuve 10 - Challenge Final IRL"
+category: "Terrain"
+description: |
+  ## Mission : Challenge Final en Présentiel
+  
+  **ALERTE FINALE :** L.U.M.E.N. a été localisé, mais le défi final se déroule dans le monde réel.
+  
+  **Votre mission :**
+  - Grace aux challenges précédents, vous avez réussi à localiser L.U.M.E.N.
+  - Vous devez maintenant désactiver L.U.M.E.N.
+  - Obtenir le flag final pour compléter votre mission
+  
+  Bonne chance pour cette épreuve finale, Agent !
+
+value: 100
+type: standard
+state: visible
+
+# Pas de connection_info car c'est un challenge IRL
+connection_info: ""
+
+flags:
+  - "ACE{FID6MX78S}"
+
+
+tags:
+  - "irl"
+  - "physique"
+  - "final"
+  - "terrain"
+

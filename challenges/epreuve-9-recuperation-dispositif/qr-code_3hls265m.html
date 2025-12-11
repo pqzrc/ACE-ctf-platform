@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Épreuve 9 - Tracage du Signal (3/3)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="intro-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="title-font text-3xl font-bold modal-title">
+                ✅ QR-CODE DÉCOUVERT ! (2/3)
+            </h2>
+            <p class="text-lg mb-4 text-white">
+                <strong>Bien joué !</strong> Vous avez intercepté la troisième partie du signal. Trouvez le dernier dispositif afin de récupérer l'outils de désactivation.
+            </p>
+            <button id="modal-close-button" class="modal-button title-font text-xl font-bold py-3 px-8 rounded-full uppercase tracking-wider text-white hover:text-black mt-4">
+                Poursuivre la traque !
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg mx-auto space-y-8 mt-10">
+
+        <header class="text-center">
+            <h1 class="title-font text-3xl sm:text-4xl text-white mb-2 tracking-wider" style="color: var(--color-accent-bleu);">
+                ÉPREUVE 9 - TRACAGE DU SIGNAL (3/3)
+            </h1>
+            <p class="text-xl text-white font-semibold mb-4">
+                L.U.M.E.N. brouille les pistes. Trouver le dispositif et scannez le.
+            </p>
+        </header>
+
+        <main class="card p-4 rounded-xl">
+            <h2 class="text-lg font-semibold mb-3 text-center" style="color: var(--color-accent-rose);">
+                Localisation de la zone du troisième QR Code
+            </h2>
+            <div id="image-plan-container" class="w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700 p-2">
+                <img id="image-plan" src="images/plan3.png" alt="Plan de l'indice 3" class="w-full h-auto rounded object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/0f0e4a/ff0055?text=ERREUR+plan2.png'; this.alt='Erreur de chargement';" >
+            </div>
+            <p class="mt-3 text-sm text-center" style="color: var(--color-text-light);">
+                Rendez-vous à la zone en surbrillance pour trouver un <strong>QR Code physique</strong>.
+            </p>
+
+            <div class="text-center mt-6">
+                <button id="reveal-button" class="neon-button title-font text-base sm:text-xl font-bold py-3 px-8 rounded-full shadow-lg uppercase tracking-wider text-white hover:text-black">
+                    Afficher l'indice
+                </button>
+            </div>
+        </main>
+
+        <section id="revealed-image-section" class="card p-4 rounded-xl hidden">
+            <h2 class="text-lg font-semibold mb-3 text-center" style="color: var(--color-accent-bleu);">
+                Indice : Aperçu du Lieu du Prochain QR Code (vers l'emplacement final)
+            </h2>
+            <div class="w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700 p-2">
+                <img id="image-lieu" src="images/lieu3.jpg" alt="Lieu physique de l'indice 3" class="w-full h-auto rounded object-cover" onerror="this.onerror=null; this.src='https://placehold.co/600x400/0f0e4a/ff0055?text=ERREUR+lieu2.jpg'; this.alt='Erreur de chargement';" >
+            </div>
+            <p class="mt-3 text-base font-semibold text-center" style="color: var(--color-text-light);">
+                Le QR Code se trouve dans la zone indiquée sur l'image.
+            </p>
+        </section>
+
+    </div>
+
+    <!-- Widget LUMEN/DSIN -->
+<script>
+  // Dériver automatiquement l'URL de LUMEN à partir de l'URL actuelle
+  (function() {
+    const loc = window.location;
+    const hostParts = loc.hostname.split('.');
+    hostParts[0] = 'lumen';
+    const lumenHost = hostParts.join('.');
+    const lumenBase = loc.protocol + '//' + lumenHost + (loc.port ? ':' + loc.port : '');
+    
+    window.LUMEN_CONFIG = { apiBase: lumenBase, currentEpreuve: 9 };
+
+    const script = document.createElement('script');
+    script.src = lumenBase + '/public/widget/lumen-widget.js';
+    script.onload = function() {
+      if (typeof LumenWidget !== 'undefined') {
+        LumenWidget.init(window.LUMEN_CONFIG);
+      }
+    };
+    document.head.appendChild(script);
+  })();
+</script>
+
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const revealButton = document.getElementById('reveal-button');
+            const revealedSection = document.getElementById('revealed-image-section');
+            const modal = document.getElementById('intro-modal');
+            const modalCloseButton = document.getElementById('modal-close-button');
+
+            // --- Logique du Pop-up ---
+            modalCloseButton.addEventListener('click', () => {
+                // Cacher la modale
+                modal.classList.add('hidden');
+                // S'assurer que le bouton n'est pas caché
+                revealButton.textContent = "Afficher l'indice";
+            });
+
+            // --- Logique du Bouton de Révélation d'Indice ---
+            revealButton.addEventListener('click', () => {
+                const isHidden = revealedSection.classList.contains('hidden');
+
+                if (isHidden) {
+                    // Afficher la section
+                    revealedSection.classList.remove('hidden');
+                    revealButton.textContent = "Masquer l'indice";
+                    revealedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    // Cacher la section
+                    revealedSection.classList.add('hidden');
+                    revealButton.textContent = "Afficher l'indice";
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
