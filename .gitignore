@@ -54,3 +54,9 @@ Thumbs.db
 # ============================================
 *.log
 
+# Allow challenge log fixtures to be committed
+!challenges/epreuve-6-decryptage/logs/
+!challenges/epreuve-6-decryptage/logs/**
+!challenges/epreuve-7-logs/logs/
+!challenges/epreuve-7-logs/logs/**
+

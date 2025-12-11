@@ -563,13 +563,18 @@
         const loc = window.location;
         const hostParts = loc.hostname.split('.');
         
-        // Remplacer le premier segment par 'ctfd'
-        if (hostParts.length >= 2) {
+        // Ex: hamecon-phishing.challenges.vizyondijital.fr -> ctfd.vizyondijital.fr/challenges
+        if (hostParts.length >= 3 && hostParts[1] === 'challenges') {
+          // Retirer le nom du challenge et 'challenges', ajouter 'ctfd'
+          const domain = hostParts.slice(2).join('.');
+          ctfdUrl = loc.protocol + '//ctfd.' + domain + '/challenges';
+        } else if (hostParts.length >= 2) {
+          // Fallback: remplacer le premier segment par 'ctfd'
           hostParts[0] = 'ctfd';
-          ctfdUrl = loc.protocol + '//' + hostParts.join('.') + (loc.port ? ':' + loc.port : '');
+          ctfdUrl = loc.protocol + '//' + hostParts.join('.') + '/challenges';
         } else {
           // localhost ou IP
-          ctfdUrl = loc.protocol + '//ctfd.localhost' + (loc.port ? ':' + loc.port : '');
+          ctfdUrl = loc.protocol + '//ctfd.localhost' + (loc.port ? ':' + loc.port : '') + '/challenges';
         }
       }
       
