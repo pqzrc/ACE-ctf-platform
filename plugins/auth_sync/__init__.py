@@ -11,8 +11,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 REGISTRATION_SITE_URL = os.getenv('REGISTRATION_SITE_URL', 'http://backend:5000/api')
-JWT_SECRET = os.getenv('JWT_SECRET', 'changez-moi-en-production')
+JWT_SECRET = os.getenv('JWT_SECRET')
 CTFD_PUBLIC_URL = os.getenv('CTFD_PUBLIC_URL', 'http://localhost:8000')
+
+# Validate JWT_SECRET at startup
+if not JWT_SECRET:
+    logger.error("FATAL: JWT_SECRET environment variable is required!")
+    raise ValueError("JWT_SECRET must be configured")
 
 
 class RegistrationAuthAPI:
@@ -122,7 +127,7 @@ def load(app):
                     'firstName': payload.get('firstName', ''),
                     'lastName': payload.get('lastName', ''),
                     'username': payload.get('username'),
-                    'affiliation': payload.get('affiliation'),
+                    'affiliation': payload.get('composante'),
                     'isAdmin': payload.get('isAdmin', False),
                     'teamId': payload.get('teamId')
                 }
@@ -187,12 +192,12 @@ def load(app):
                     verified=True,
                     hidden=False,
                     banned=False,
-                    affiliation=user_data.get('affiliation'),
+                    affiliation=user_data.get('composante'),
                     website=None
                 )
                 db.session.add(user)
                 db.session.commit()
-                logger.info(f"Utilisateur créé via SSO: {email} (name={display_name}, affiliation={user_data.get('affiliation')}, team_id={user.team_id})")
+                logger.info(f"Utilisateur créé via SSO: {email} (name={display_name}, affiliation={user_data.get('composante')}, team_id={user.team_id})")
             else:
                 needs_update = False
                 
@@ -216,7 +221,7 @@ def load(app):
                     needs_update = True
                 
                 # Update affiliation if changed
-                new_affiliation = user_data.get('affiliation')
+                new_affiliation = user_data.get('composante')
                 if new_affiliation != user.affiliation:
                     logger.info(f"Mise à jour de l'affiliation {email}: {user.affiliation} -> {new_affiliation}")
                     user.affiliation = new_affiliation

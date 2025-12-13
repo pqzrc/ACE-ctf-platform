@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÉPREUVE 04 : LE TEST</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <div class="lumen-badge">
+                <i class="fas fa-robot"></i> L.U.M.E.N. v4.0
+            </div>
+            <h1 class="title">ÉPREUVE 04 : LE TEST</h1>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Progression : 0%</div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            
+            <div class="lumen-message">
+                <i class="fas fa-terminal"></i>
+                <strong>L.U.M.E.N. :</strong> "Je doute qu'un organique puisse connaître sa propre institution aussi bien que ma base de données."
+            </div>
+
+            <form id="qcm-form" class="qcm-form" onsubmit="return false;">
+                
+                <div id="qcm-questions-wrapper"></div>
+
+                <div class="form-footer">
+                    <div class="counter">QUESTION <span id="current-q">1</span> / <span id="total-q">5</span></div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" id="prev-btn" class="btn btn-secondary" disabled>
+                            <i class="fas fa-arrow-left"></i> Précédent
+                        </button>
+                        <button type="button" id="next-btn" class="btn btn-primary">
+                            Suivant <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button type="button" id="submit-btn" class="btn btn-primary" style="display: none;">
+                            Valider l'épreuve <i class="fas fa-check-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="result-area" class="result-container" style="display: none;"></div>
+
+        </main>
+
+        <footer class="footer">
+            <div class="university-badge">
+                <i class="fas fa-university"></i> Université des antilles
+            </div>
+            <div class="footer-info">
+                <div class="minimum-score">Score requis : 80%</div>
+                <div class="flag-info">Status: <code id="flag-status">PENDING</code></div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Widget LUMEN/DSIN -->
+<script>
+  // Dériver automatiquement l'URL de LUMEN à partir de l'URL actuelle
+  (function() {
+    const loc = window.location;
+    const hostParts = loc.hostname.split('.');
+    hostParts[0] = 'lumen';
+    const lumenHost = hostParts.join('.');
+    const lumenBase = loc.protocol + '//' + lumenHost + (loc.port ? ':' + loc.port : '');
+    
+    window.LUMEN_CONFIG = { apiBase: lumenBase, currentEpreuve: 4 };
+
+    const script = document.createElement('script');
+    script.src = lumenBase + '/public/widget/lumen-widget.js';
+    script.onload = function() {
+      if (typeof LumenWidget !== 'undefined') {
+        LumenWidget.init(window.LUMEN_CONFIG);
+      }
+    };
+    document.head.appendChild(script);
+  })();
+</script>
+<script src="script.js"></script>
+</body>
+</html>

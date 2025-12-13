@@ -1,0 +1,11 @@
+[2025-12-10 09:00:12] INFO: Initialisation du pare-feu FortiGate v7.2
+[2025-12-10 09:00:15] SUCCESS: Chargement des 2847 règles de filtrage
+[2025-12-10 09:05:23] ALERT: Blocage de 47 paquets suspects depuis 185.220.101.45
+[2025-12-10 09:10:38] WARNING: Tentative de scan de ports détectée depuis 92.118.160.23
+[2025-12-10 09:15:47] ERROR: Règle de pare-feu #342 en conflit avec la règle #567
+[2025-12-10 09:20:55] INFO: Mise à jour des signatures IPS - 1234 nouvelles menaces ajoutées
+[2025-12-10 09:25:12] CRITICAL: Attaque DDoS détectée - Trafic anormal de 15 Gbps
+[2025-12-10 09:30:28] SUCCESS: Activation du mode défense contre les attaques DDoS
+[2025-12-10 09:35:42] INFO: Blocage automatique de 156 adresses IP malveillantes
+[2025-12-10 09:40:56] WARNING: Tentative de contournement du pare-feu via tunnel VPN non autorisé
+

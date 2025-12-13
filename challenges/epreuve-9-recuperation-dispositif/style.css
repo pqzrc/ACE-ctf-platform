@@ -1,0 +1,83 @@
+/* Définition des couleurs personnalisées */
+:root {
+    --color-primary-bg: #050511;
+    --color-secondary-bg: #0f0e4a;
+    --color-accent-rose: #fc10ca;
+    --color-accent-bleu: #09c7df;
+    --color-text-light: #f6f2f9;
+    --color-text-main: #ffffff;
+    --color-success: #00ff9d;
+}
+
+body {
+    background-color: var(--color-primary-bg);
+    color: var(--color-text-light);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 1rem;
+}
+.title-font { font-family: 'Space Grotesk', sans-serif; }
+.card {
+    background-color: var(--color-secondary-bg);
+    border: 2px solid var(--color-accent-bleu);
+    box-shadow: 0 0 20px rgba(9, 199, 223, 0.3);
+}
+
+/* Styles pour les boutons NEON (accent rose par défaut) */
+.neon-button {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px var(--color-accent-rose), 0 0 10px var(--color-accent-rose), 0 0 20px rgba(252, 16, 202, 0.4);
+    border: 2px solid var(--color-accent-rose);
+}
+.neon-button:hover {
+    background-color: var(--color-accent-rose);
+    color: var(--color-primary-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px var(--color-accent-rose), 0 0 30px var(--color-accent-rose), 0 0 60px rgba(252, 16, 202, 0.6);
+}
+
+/* --- Styles pour la Pop-up Modale --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* Fond sombre */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: var(--color-secondary-bg);
+    border: 3px solid var(--color-accent-bleu);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 90%;
+    width: 450px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(9, 199, 223, 0.5); /* Néon bleu */
+}
+
+/* Titre de la modale (changé en couleur succès ou rose dans d'autres contextes) */
+.modal-title {
+    color: var(--color-success); /* Utilisé la couleur succès pour la validation/titre final */
+    margin-bottom: 1rem;
+}
+
+/* Bouton dans la modale (couleur succès) */
+.modal-button {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px var(--color-success), 0 0 10px var(--color-success), 0 0 20px rgba(0, 255, 157, 0.4);
+    border: 2px solid var(--color-success);
+}
+.modal-button:hover {
+    background-color: var(--color-success);
+    color: var(--color-primary-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px var(--color-success), 0 0 30px var(--color-success), 0 0 60px rgba(0, 255, 157, 0.6);
+}

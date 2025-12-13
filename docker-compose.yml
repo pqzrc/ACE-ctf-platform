@@ -1,5 +1,6 @@
+name: ace-ctf
+
 services:
-  # CTFd Application
   ctfd:
     build: .
     user: root
@@ -9,12 +10,11 @@ services:
     env_file:
       - .env
     environment:
-      # Variables calculées à partir du .env
       - DATABASE_URL=mysql+pymysql://ctfd:${MYSQL_PASSWORD}@db/ctfd
       - REDIS_URL=redis://cache:6379
-
+      - FRONTEND_URL=${FRONTEND_URL}
+      - REGISTRATION_SITE_URL=${REGISTRATION_SITE_URL}
     volumes:
-      # Plugins
       - ./plugins/registration_sync:/opt/CTFd/CTFd/plugins/registration_sync
       - ./plugins/score_sync:/opt/CTFd/CTFd/plugins/score_sync
       - ./plugins/auth_sync:/opt/CTFd/CTFd/plugins/auth_sync
@@ -24,40 +24,36 @@ services:
       - ./plugins/disable_direct_auth:/opt/CTFd/CTFd/plugins/disable_direct_auth
       - ./plugins/team_requirement_message:/opt/CTFd/CTFd/plugins/team_requirement_message
       - ./plugins/disable_user_settings:/opt/CTFd/CTFd/plugins/disable_user_settings
-
-      # Themes (optionnel)
-      # NOTE: Le montage du volume themes écrase le thème core de CTFd
-      # Pour utiliser un thème personnalisé, copiez-le dans l'image ou utilisez un montage nommé
-      # - ./themes:/opt/CTFd/CTFd/themes
-
-      # Uploads persistants
+      - ./plugins/empty_challenges_message:/opt/CTFd/CTFd/plugins/empty_challenges_message
       - ctfd_uploads:/var/uploads
-
-      # Logs
       - ctfd_logs:/var/log/CTFd
-
     depends_on:
-      - db
-      - cache
-
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
     networks:
       - ctfd-internal
-      - ace-network # Réseau partagé avec le site d'inscription
-
+      - ace-website_ace-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/healthcheck" ]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/healthcheck" ]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  # MariaDB Database
   db:
     image: mariadb:10.11
     restart: always
-    env_file:
-      - .env
     environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_USER=ctfd
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=ctfd
       - MARIADB_AUTO_UPGRADE=1
     volumes:
@@ -69,113 +65,46 @@ services:
       - --collation-server=utf8mb4_unicode_ci
       - --wait_timeout=28800
       - --log-warnings=0
+      - --max-connections=200
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  # Redis Cache
   cache:
     image: redis:7-alpine
     restart: always
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - ctfd_redis:/data
     networks:
       - ctfd-internal
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
 
-  # Traefik (Reverse Proxy pour les challenges)
-  traefik:
-    image: traefik:v2.10
-    restart: always
-    command:
-      - "--api.dashboard=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=ctfd-challenges"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-    ports:
-      - "8081:80" # Changé pour éviter conflit avec nginx
-      - "8443:443" # Changé pour éviter conflit
-      - "8082:8080" # Traefik dashboard
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.ctf.local`)"
-      - "traefik.http.routers.traefik.service=api@internal"
-
-  # ===== 5 Test Challenges =====
-
-  challenge_test1:
-    build: ./challenges/test1-static/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test1.rule=Host(`test1.challenges.local`)"
-      - "traefik.http.services.test1.loadbalancer.server.port=80"
-
-  challenge_test2:
-    build: ./challenges/test2-source/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test2.rule=Host(`test2.challenges.local`)"
-      - "traefik.http.services.test2.loadbalancer.server.port=80"
-
-  challenge_test3:
-    build: ./challenges/test3-file/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test3.rule=Host(`test3.challenges.local`)"
-      - "traefik.http.services.test3.loadbalancer.server.port=80"
-
-  challenge_test4:
-    build: ./challenges/test4-form/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test4.rule=Host(`test4.challenges.local`)"
-      - "traefik.http.services.test4.loadbalancer.server.port=80"
-
-  challenge_test5:
-    build: ./challenges/test5-calc/deploy
-    restart: always
-    networks:
-      - ctfd-challenges
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.test5.rule=Host(`test5.challenges.local`)"
-      - "traefik.http.services.test5.loadbalancer.server.port=80"
-
-# Networks
 networks:
   ctfd-internal:
     driver: bridge
-    internal: true # Pas d'accès internet pour la DB/Redis
+  ace-website_ace-network:
+    external: true
 
-  ctfd-challenges:
-    driver: bridge
-
-  ace-network:
-    name: ace-website_ace-network
-    external: true # Réseau créé par le site d'inscription ACE
-    # Ce réseau permet à CTFd de communiquer avec backend:5000
-
-    # Volumes
 volumes:
   ctfd_db:
-    driver: local
   ctfd_redis:
-    driver: local
   ctfd_uploads:
-    driver: local
   ctfd_logs:
-    driver: local

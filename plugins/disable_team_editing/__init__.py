@@ -10,8 +10,18 @@ from CTFd.utils.decorators import authed_only
 from CTFd.utils.user import is_admin
 
 
+import os
+from jinja2 import FileSystemLoader
+
 def load(app):
     """Plugin load function"""
+    
+    # Register the templates directory to override core templates
+    plugin_templates_path = os.path.join(os.path.dirname(__file__), 'templates')
+    
+    # Create a FileSystemLoader for our plugin templates and insert it first
+    plugin_loader = FileSystemLoader(plugin_templates_path)
+    app.jinja_loader.loaders.insert(0, plugin_loader)
 
     # Override team edit routes to prevent modifications
     @app.before_request
@@ -31,21 +41,33 @@ def load(app):
             if '/api/v1/teams/' in request.path:
                 abort(403, description="Team editing is disabled. Please use the registration site to manage your team.")
 
-        # Block team join/leave endpoints for non-admins
+        # Block team join/leave/invite/disband endpoints for non-admins
         if request.method == 'POST':
             blocked_paths = [
                 '/teams/join',
                 '/teams/new',
+                '/teams/invite',
+                '/api/v1/teams/invite',
             ]
             for path in blocked_paths:
                 if request.path.startswith(path):
                     abort(403, description="Team management is disabled. Teams are created through the registration site.")
 
+        # Block specific API actions
+        if request.method in ['POST', 'PATCH', 'DELETE']:
+            # Block captain change
+            if '/captain' in request.path:
+                abort(403, description="Captain management is disabled. Please use the registration site.")
+            
+            # Block team disband/delete
+            if '/api/v1/teams/' in request.path and request.method == 'DELETE':
+                 abort(403, description="Team deletion is disabled. Please use the registration site.")
+
     # Add a custom message template
     @app.context_processor
     def inject_team_edit_message():
         """Inject message about team editing"""
-        registration_url = app.config.get('REGISTRATION_SITE_URL', 'http://localhost:3000')
+        registration_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
         return {
             'team_edit_disabled': True,
             'team_edit_message': 'Team information is managed through the registration site.',

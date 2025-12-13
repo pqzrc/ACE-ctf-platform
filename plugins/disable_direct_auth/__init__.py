@@ -5,6 +5,7 @@ Forces users to use SSO from registration site only
 
 from flask import Blueprint, redirect, render_template_string, request, abort
 from CTFd.utils.user import is_admin
+import os
 
 
 BLOCKED_PAGE_HTML = """
@@ -119,7 +120,7 @@ def load(app):
     """Plugin load function"""
     
     # Get registration site URL from config
-    registration_url = app.config.get('FRONTEND_URL', 'http://localhost:3000')
+    registration_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
     
     @app.before_request
     def block_direct_auth():

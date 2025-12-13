@@ -1,0 +1,30 @@
+# Challenge: Épreuve 2 - Reprise du Compte Compromis
+# Type: Web - Création de mot de passe sécurisé
+
+name: "Épreuve 2 - Reprise du Compte Compromis"
+category: "Sécurité"
+description: |
+  ## Mission : Réinitialisation Critique
+  
+  **ALERTE DSIN :** Une activité suspecte a été détectée sur le compte administrateur.
+  
+  L.U.M.E.N. a compromis le compte `admin@universite.fr`. Vous devez créer un mot de passe ultra-sécurisé respectant toutes les règles de sécurité pour reprendre le contrôle.
+  
+
+
+value: 100
+type: standard
+state: visible
+
+connection_info: "http://verrouillage-mdp.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{M0Z60XOXS}"
+
+
+
+tags:
+  - "mot-de-passe"
+  - "sécurité"
+  - "authentification"
+

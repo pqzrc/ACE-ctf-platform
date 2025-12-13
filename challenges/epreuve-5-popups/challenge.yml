@@ -1,0 +1,32 @@
+# Challenge: Épreuve 5 - Popups Malveillants
+# Type: Web - Dashboard DSIN avec popups
+
+name: "Épreuve 5 - Pop-ups Malveillants"
+category: "Web"
+description: |
+  ## Mission : Neutraliser les Pop-ups Malveillants
+
+  L.U.M.E.N. a infecté le dashboard DSIN avec des pop-ups malveillants qui bloquent l'accès au panneau de contrôle.
+
+  **Objectif :**
+  - Accéder au dashboard DSIN
+  - Fermer tous les pop-ups malveillants (minimum 10)
+  - Récupérer le contrôle du système
+
+  **Astuce :** Les pop-ups peuvent être persistants, soyez patient et méthodique.
+
+value: 150
+type: standard
+state: visible
+
+connection_info: "http://panneau-controle.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{X5P0PU9M2}"
+
+tags:
+  - "popups"
+  - "web"
+  - "dashboard"
+  - "dsin"
+

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Escape Mail — Identifier l'e-mail de phishing</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+  <div class="panel left">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:800;font-size:16px">Boîte de test — Escape Mail</div>
+      <div style="color:var(--text-light);font-size:13px">But : trouver l'e-mail piégé</div>
+    </div>
+
+    <div class="mail-tabs">
+      <button class="tab-btn active" data-box="inbox">Réception</button>
+      <button class="tab-btn" data-box="promo">Promotion</button>
+      <button class="tab-btn" data-box="spam">Spam</button>
+    </div>
+
+    <div class="search">
+      <input id="filter" placeholder="Filtrer par sujet/expéditeur..." />
+      <button id="reset">Reset</button>
+    </div>
+
+    <div class="mail-list" id="mailList"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <div style="color:var(--text-light);font-size:13px">Mails : 11</div>
+      <div style="color:var(--text-light);font-size:13px">Time : <span id="timer">—</span></div>
+    </div>
+  </div>
+
+  <div class="panel center">
+    <div class="mail-view">
+      <div id="welcome" style="text-align:center;padding:40px;color:var(--text-light)">
+        Ouvre les e-mails, examine l'expéditeur, les URLs, le ton et les pièces jointes.  
+        Clique sur <strong>Signaler comme phishing</strong> pour désigner le mail suspect.
+      </div>
+
+      <div id="mailContent" style="display:none">
+        <div class="mail-header">
+          <div class="header-left">
+            <div class="subject" id="subject">Sujet</div>
+            <div class="fromline" id="fromline">De • <span id="fromName"></span> &lt;<span id="fromEmail"></span>&gt; — <span id="date"></span></div>
+          </div>
+          <div class="controls">
+            <button id="btnReport" class="danger">Signaler comme phishing</button>
+            <button id="btnMark" title="Marquer comme lu/non lu">Marquer lu/ non lu</button>
+          </div>
+        </div>
+
+        <div id="body" style="line-height:1.5;color:var(--text-light)"></div>
+        <div id="attachmentsArea" class="details" style="display:none"></div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Widget LUMEN/DSIN -->
+<script>
+  // Dériver automatiquement l'URL de LUMEN à partir de l'URL actuelle
+  (function() {
+    const loc = window.location;
+    const hostParts = loc.hostname.split('.');
+    hostParts[0] = 'lumen';
+    const lumenHost = hostParts.join('.');
+    const lumenBase = loc.protocol + '//' + lumenHost + (loc.port ? ':' + loc.port : '');
+    
+    window.LUMEN_CONFIG = { apiBase: lumenBase, currentEpreuve: 1 };
+
+    const script = document.createElement('script');
+    script.src = lumenBase + '/public/widget/lumen-widget.js';
+    script.onload = function() {
+      if (typeof LumenWidget !== 'undefined') {
+        LumenWidget.init(window.LUMEN_CONFIG);
+      }
+    };
+    document.head.appendChild(script);
+  })();
+</script>
+<script src="app.js"></script>
+</body>
+</html>

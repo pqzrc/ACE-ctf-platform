@@ -1,0 +1,31 @@
+# Challenge: Épreuve 7 - Analyse des Logs
+# Type: Web - Investigation des logs système
+
+name: "Épreuve 7 - Analyse des Logs"
+category: "Web"
+description: |
+  ## Mission : Analyser les Logs Système
+
+  L.U.M.E.N. a laissé des traces dans les logs du système DSIN. Analysez les fichiers de logs pour trouver des informations compromettantes.
+
+  **Objectif :**
+  - Accéder à l'interface d'analyse des logs
+  - Décrypter les noms de fichiers chiffrés
+  - Trouver les informations cachées dans les logs
+
+  **Astuce :** Certains fichiers peuvent contenir des informations sensibles.
+
+value: 175
+type: standard
+state: visible
+
+connection_info: "http://reseau-admin.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{R3S34U7NK}"
+
+tags:
+  - "logs"
+  - "web"
+  - "analyse"
+  - "dsin"

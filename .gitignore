@@ -1,3 +1,23 @@
+# ============================================
+# ACE CTF Platform - .gitignore
+# ============================================
+
+# ============================================
+# SECURITY: Environment Files
+# ============================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+
+# SAFE TO COMMIT:
+# - .env.example (template only)
+# - .env.dev (if no real secrets)
+
+# ============================================
+# Python
+# ============================================
 __pycache__/
 *.pyc
 *.pyo
@@ -5,5 +25,38 @@ __pycache__/
 .Python
 env/
 venv/
-.env
+.venv/
+
+# ============================================
+# Data & Volumes
+# ============================================
+.data/
+data/
+volumes/
+
+# ============================================
+# OS files
+# ============================================
 .DS_Store
+Thumbs.db
+
+# ============================================
+# IDE
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================
+# Logs
+# ============================================
+*.log
+
+# Allow challenge log fixtures to be committed
+!challenges/epreuve-6-decryptage/logs/
+!challenges/epreuve-6-decryptage/logs/**
+!challenges/epreuve-7-logs/logs/
+!challenges/epreuve-7-logs/logs/**
+

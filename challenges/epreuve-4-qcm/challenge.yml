@@ -1,0 +1,33 @@
+# Challenge: Épreuve 4 - QCM Université
+# Type: Web - Quiz interactif
+
+name: "Épreuve 4 - Le Test"
+category: "Web"
+description: |
+  ## Mission : Prouver votre connaissance de l'Université
+
+  L.U.M.E.N. vous met au défi avec un QCM sarcastique sur l'Université des Antilles.
+
+  **Objectif :**
+  - Répondre à 10 questions sur l'université
+  - Atteindre un score minimum de 80%
+  - L.U.M.E.N. doute qu'un "organique" puisse réussir...
+
+  **Astuce :** Connaissez-vous vraiment votre institution ?
+
+value: 100
+type: standard
+state: visible
+
+connection_info: "http://test-connaissance.challenges.vizyondijital.fr"
+
+flags:
+  - "ACE{QRSK63IHW}"
+
+
+
+tags:
+  - "qcm"
+  - "quiz"
+  - "web"
+  - "universite"

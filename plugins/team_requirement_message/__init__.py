@@ -1,5 +1,6 @@
 from flask import render_template_string, request
 from CTFd.utils.user import get_current_user, get_current_team, authed
+import os
 
 
 TEAM_REQUIRED_HTML = """
@@ -126,7 +127,7 @@ def load(app):
             
             # If user has no team, show custom message
             if not team:
-                registration_url = app.config.get('FRONTEND_URL', 'http://localhost:3000')
+                registration_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
                 return render_template_string(
                     TEAM_REQUIRED_HTML,
                     registration_url=registration_url

@@ -1,0 +1,669 @@
+/**
+ * Widget LUMEN/DSIN - Chat réutilisable pour les challenges
+ * 
+ * Usage:
+ * <script src="https://lumen.challenges.vizyondijital.fr/public/widget/lumen-widget.js"></script>
+ * <script>
+ *   LumenWidget.init({
+ *     apiBase: 'https://lumen.challenges.vizyondijital.fr',
+ *     teamId: 'team-123', // Optionnel
+ *     currentEpreuve: 1   // Numéro de l'épreuve actuelle
+ *   });
+ * </script>
+ */
+
+(function() {
+  'use strict';
+
+  const LumenWidget = {
+    config: {
+      apiBase: '',
+      teamId: null,
+      currentEpreuve: null,
+      sessionId: null,
+      ctfdUrl: null // URL de CTFd pour le bouton
+    },
+
+    state: {
+      lumenHistory: [],
+      dsinHistory: [],
+      isMinimized: {
+        lumen: false,
+        dsin: false
+      }
+    },
+
+    /**
+     * Initialise le widget
+     */
+    init(options = {}) {
+      // Support alias 'epreuve' pour 'currentEpreuve'
+      if (options.epreuve && !options.currentEpreuve) {
+        options.currentEpreuve = options.epreuve;
+      }
+      
+      this.config = { ...this.config, ...options };
+      
+      // Auto-dériver apiBase si non fourni
+      if (!this.config.apiBase) {
+        this.config.apiBase = this.deriveApiBase();
+      }
+      
+      // Récupérer ou créer sessionId
+      this.config.sessionId = this.getSessionId();
+      
+      // Créer les widgets dans le DOM
+      this.createWidgets();
+      
+      // Charger l'intro DSIN si épreuve spécifiée
+      if (this.config.currentEpreuve) {
+        this.loadDsinIntro(this.config.currentEpreuve);
+      }
+      
+      // Message d'accueil LUMEN
+      setTimeout(() => {
+        this.addLumenMessage("Je surveille vos actions. Vos tentatives sont... prévisibles.");
+      }, 1000);
+    },
+    
+    /**
+     * Dérive l'URL de l'API LUMEN à partir du hostname actuel
+     */
+    deriveApiBase() {
+      const loc = window.location;
+      const hostParts = loc.hostname.split('.');
+      
+      // Production: xxx.challenges.vizyondijital.fr -> lumen.challenges.vizyondijital.fr
+      if (hostParts.length >= 3 && hostParts[1] === 'challenges') {
+        hostParts[0] = 'lumen';
+        return loc.protocol + '//' + hostParts.join('.');
+      }
+      
+      // Local: xxx.localhost -> lumen.localhost:8081
+      if (loc.hostname.includes('localhost')) {
+        return loc.protocol + '//lumen.localhost:8081';
+      }
+      
+      // Fallback: même origine
+      return loc.origin;
+    },
+
+    /**
+     * Récupère ou crée un identifiant de session
+     */
+    getSessionId() {
+      // Vérifier le cookie
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'lumen_session') {
+          return value;
+        }
+      }
+      
+      // Créer un nouvel ID
+      const sessionId = 'anon_' + Math.random().toString(36).substring(2, 15);
+      document.cookie = `lumen_session=${sessionId}; path=/; max-age=${3600 * 24}`;
+      return sessionId;
+    },
+
+    /**
+     * Crée les widgets dans le DOM
+     */
+    createWidgets() {
+      // Widget LUMEN (bas droite)
+      const lumenWidget = document.createElement('div');
+      lumenWidget.id = 'lumen-widget';
+      lumenWidget.className = 'lumen-widget';
+      lumenWidget.innerHTML = `
+        <div class="lumen-widget-header" onclick="LumenWidget.toggle('lumen')">
+          <span class="lumen-widget-icon">◈</span>
+          <span class="lumen-widget-title">L.U.M.E.N.</span>
+          <span class="lumen-widget-toggle">−</span>
+        </div>
+        <div class="lumen-widget-content" id="lumen-widget-content">
+          <div class="lumen-widget-messages" id="lumen-widget-messages"></div>
+          <div class="lumen-widget-input">
+            <input type="text" id="lumen-widget-input" placeholder="Parler à L.U.M.E.N..." />
+            <button id="lumen-widget-send">→</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(lumenWidget);
+
+      // Widget DSIN (bas gauche)
+      const dsinWidget = document.createElement('div');
+      dsinWidget.id = 'dsin-widget';
+      dsinWidget.className = 'dsin-widget';
+      dsinWidget.innerHTML = `
+        <div class="dsin-widget-header" onclick="LumenWidget.toggle('dsin')">
+          <span class="dsin-widget-icon">◆</span>
+          <span class="dsin-widget-title">Canal DSIN</span>
+          <span class="dsin-widget-badge">SÉCURISÉ</span>
+          <span class="dsin-widget-toggle">−</span>
+        </div>
+        <div class="dsin-widget-content" id="dsin-widget-content">
+          <div class="dsin-widget-messages" id="dsin-widget-messages"></div>
+        </div>
+      `;
+      document.body.appendChild(dsinWidget);
+
+      // Bouton CTFd (pour naviguer vers CTFd sans ouvrir de nouvelle fenêtre)
+      const ctfdButton = document.createElement('button');
+      ctfdButton.className = 'ctfd-button';
+      ctfdButton.textContent = 'Accéder à CTFd';
+      ctfdButton.onclick = () => this.goToCtfd();
+      document.body.appendChild(ctfdButton);
+
+      // Événements
+      document.getElementById('lumen-widget-send').addEventListener('click', () => this.sendLumenMessage());
+      document.getElementById('lumen-widget-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') this.sendLumenMessage();
+      });
+
+      // Injecter le CSS
+      this.injectCSS();
+    },
+
+    /**
+     * Injecte le CSS du widget
+     */
+    injectCSS() {
+      const style = document.createElement('style');
+      style.textContent = `
+        .lumen-widget, .dsin-widget {
+          position: fixed;
+          width: 350px;
+          max-height: 500px;
+          background: rgba(15, 14, 74, 0.95);
+          backdrop-filter: blur(20px);
+          border-radius: 12px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+          z-index: 10000;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.85rem;
+        }
+
+        .lumen-widget {
+          bottom: 20px;
+          right: 20px;
+          border: 1px solid rgba(252, 16, 202, 0.3);
+        }
+
+        .dsin-widget {
+          bottom: 20px;
+          left: 20px;
+          border: 1px solid rgba(9, 199, 223, 0.3);
+        }
+
+        .lumen-widget-header, .dsin-widget-header {
+          padding: 12px 16px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          user-select: none;
+        }
+
+        .lumen-widget-header {
+          background: linear-gradient(90deg, rgba(252, 16, 202, 0.15) 0%, transparent 100%);
+          border-bottom: 1px solid rgba(252, 16, 202, 0.2);
+        }
+
+        .dsin-widget-header {
+          background: linear-gradient(90deg, rgba(9, 199, 223, 0.15) 0%, transparent 100%);
+          border-bottom: 1px solid rgba(9, 199, 223, 0.2);
+        }
+
+        .lumen-widget-icon, .dsin-widget-icon {
+          font-size: 1.2rem;
+        }
+
+        .lumen-widget-icon {
+          color: #fc10ca;
+        }
+
+        .dsin-widget-icon {
+          color: #09c7df;
+        }
+
+        .lumen-widget-title, .dsin-widget-title {
+          flex: 1;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+        }
+
+        .lumen-widget-title {
+          color: #fc10ca;
+        }
+
+        .dsin-widget-title {
+          color: #09c7df;
+        }
+
+        .dsin-widget-badge {
+          font-size: 0.65rem;
+          padding: 2px 8px;
+          background: rgba(9, 199, 223, 0.2);
+          border: 1px solid rgba(9, 199, 223, 0.4);
+          border-radius: 4px;
+          color: #09c7df;
+        }
+
+        .lumen-widget-toggle, .dsin-widget-toggle {
+          font-size: 1.5rem;
+          line-height: 1;
+        }
+
+        .lumen-widget-content, .dsin-widget-content {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          min-height: 0;
+        }
+
+        .lumen-widget-content.minimized,
+        .dsin-widget-content.minimized {
+          display: none;
+        }
+
+        .lumen-widget-messages, .dsin-widget-messages {
+          flex: 1;
+          padding: 12px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          max-height: 350px;
+        }
+
+        .lumen-widget-message, .dsin-widget-message {
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 0.8rem;
+          line-height: 1.4;
+          word-wrap: break-word;
+        }
+
+        .lumen-widget-message {
+          background: linear-gradient(135deg, rgba(252, 16, 202, 0.15) 0%, rgba(252, 16, 202, 0.05) 100%);
+          border-left: 3px solid #fc10ca;
+        }
+
+        .dsin-widget-message {
+          background: linear-gradient(135deg, rgba(9, 199, 223, 0.15) 0%, rgba(9, 199, 223, 0.05) 100%);
+          border-left: 3px solid #09c7df;
+        }
+
+        .lumen-widget-input {
+          display: flex;
+          gap: 8px;
+          padding: 12px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lumen-widget-input input {
+          flex: 1;
+          background: rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(252, 16, 202, 0.3);
+          border-radius: 6px;
+          padding: 8px 12px;
+          color: #f6f2f9;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.8rem;
+          outline: none;
+        }
+
+        .lumen-widget-input input:focus {
+          border-color: #fc10ca;
+          box-shadow: 0 0 10px rgba(252, 16, 202, 0.2);
+        }
+
+        .lumen-widget-input button {
+          width: 36px;
+          height: 36px;
+          background: linear-gradient(135deg, #fc10ca 0%, #d60bab 100%);
+          border: none;
+          border-radius: 6px;
+          color: white;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: transform 0.2s;
+        }
+
+        .lumen-widget-input button:hover {
+          transform: scale(1.05);
+        }
+
+        .lumen-widget-messages::-webkit-scrollbar,
+        .dsin-widget-messages::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .lumen-widget-messages::-webkit-scrollbar-thumb,
+        .dsin-widget-messages::-webkit-scrollbar-thumb {
+          background: rgba(252, 16, 202, 0.4);
+          border-radius: 3px;
+        }
+
+        .dsin-widget-messages::-webkit-scrollbar-thumb {
+          background: rgba(9, 199, 223, 0.4);
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+          display: inline-block;
+          animation: typingPulse 1s ease-in-out infinite;
+          color: rgba(255, 255, 255, 0.5);
+        }
+        
+        @keyframes typingPulse {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 1; }
+        }
+
+        /* Bouton CTFd */
+        .ctfd-button {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #09c7df 0%, #0891b2 100%);
+          border: none;
+          border-radius: 8px;
+          padding: 10px 20px;
+          color: white;
+          font-family: 'JetBrains Mono', 'Inter', sans-serif;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          z-index: 10001;
+          box-shadow: 0 4px 15px rgba(9, 199, 223, 0.3);
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .ctfd-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(9, 199, 223, 0.5);
+        }
+
+        .ctfd-button::before {
+          content: '🏁';
+        }
+      `;
+      document.head.appendChild(style);
+    },
+
+    /**
+     * Toggle minimiser/maximiser un widget
+     */
+    toggle(widget) {
+      this.state.isMinimized[widget] = !this.state.isMinimized[widget];
+      const content = document.getElementById(`${widget}-widget-content`);
+      const toggle = document.querySelector(`.${widget}-widget-toggle`);
+      
+      if (this.state.isMinimized[widget]) {
+        content.classList.add('minimized');
+        toggle.textContent = '+';
+      } else {
+        content.classList.remove('minimized');
+        toggle.textContent = '−';
+      }
+    },
+
+    /**
+     * Effet de typing pour afficher du texte caractère par caractère
+     */
+    typeText(element, text, speed = 15) {
+      return new Promise((resolve) => {
+        let index = 0;
+        element.textContent = '';
+        
+        const type = () => {
+          if (index < text.length) {
+            element.textContent += text.charAt(index);
+            index++;
+            // Scroll au fur et à mesure
+            const container = element.closest('.lumen-widget-messages, .dsin-widget-messages');
+            if (container) container.scrollTop = container.scrollHeight;
+            setTimeout(type, speed);
+          } else {
+            resolve();
+          }
+        };
+        type();
+      });
+    },
+
+    /**
+     * Effet de typing pour du HTML (DSIN)
+     */
+    typeHTML(element, html, speed = 10) {
+      return new Promise((resolve) => {
+        // Parser le HTML en texte brut pour le typing
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const plainText = tempDiv.textContent || tempDiv.innerText;
+        
+        let index = 0;
+        element.innerHTML = '';
+        
+        const type = () => {
+          if (index < plainText.length) {
+            // Ajouter caractère par caractère
+            element.textContent += plainText.charAt(index);
+            index++;
+            const container = element.closest('.dsin-widget-messages');
+            if (container) container.scrollTop = container.scrollHeight;
+            setTimeout(type, speed);
+          } else {
+            // Une fois terminé, mettre le vrai HTML avec formatage
+            element.innerHTML = html;
+            resolve();
+          }
+        };
+        type();
+      });
+    },
+
+    /**
+     * Ajoute un message LUMEN avec effet typing
+     */
+    async addLumenMessage(text, withTyping = true) {
+      const messages = document.getElementById('lumen-widget-messages');
+      const msg = document.createElement('div');
+      msg.className = 'lumen-widget-message';
+      messages.appendChild(msg);
+      
+      if (withTyping) {
+        // Indicateur de typing
+        msg.innerHTML = '<span class="typing-indicator">...</span>';
+        messages.scrollTop = messages.scrollHeight;
+        await new Promise(r => setTimeout(r, 300));
+        await this.typeText(msg, text, 20);
+      } else {
+        msg.textContent = text;
+        messages.scrollTop = messages.scrollHeight;
+      }
+      
+      this.state.lumenHistory.push({ role: 'assistant', content: text });
+    },
+
+    /**
+     * Ajoute un message DSIN avec effet typing
+     */
+    async addDsinMessage(text, withTyping = true) {
+      const messages = document.getElementById('dsin-widget-messages');
+      const msg = document.createElement('div');
+      msg.className = 'dsin-widget-message';
+      messages.appendChild(msg);
+      
+      // Convertir le texte en HTML (retours à la ligne et code)
+      let html = text
+        .replace(/`(.*?)`/g, '<code style="background: rgba(0,255,157,0.1); padding: 2px 6px; border-radius: 4px; color: #00ff9d; font-family: monospace;">$1</code>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      
+      if (!html.startsWith('<p>')) {
+        html = '<p>' + html + '</p>';
+      }
+      html = html.replace(/<p><\/p>/g, '').replace(/<p>(<br>)+<\/p>/g, '');
+      
+      if (withTyping) {
+        // Indicateur de typing
+        msg.innerHTML = '<span class="typing-indicator">...</span>';
+        messages.scrollTop = messages.scrollHeight;
+        await new Promise(r => setTimeout(r, 500));
+        await this.typeHTML(msg, html, 12);
+      } else {
+        msg.innerHTML = html;
+        messages.scrollTop = messages.scrollHeight;
+      }
+      
+      this.state.dsinHistory.push({ role: 'dsin', content: text });
+    },
+
+    /**
+     * Envoie un message à LUMEN
+     */
+    async sendLumenMessage() {
+      const input = document.getElementById('lumen-widget-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Afficher le message utilisateur
+      const messages = document.getElementById('lumen-widget-messages');
+      const userMsg = document.createElement('div');
+      userMsg.className = 'lumen-widget-message';
+      userMsg.style.background = 'rgba(255, 255, 255, 0.1)';
+      userMsg.style.borderLeft = '3px solid rgba(255, 255, 255, 0.3)';
+      userMsg.textContent = message;
+      messages.appendChild(userMsg);
+      messages.scrollTop = messages.scrollHeight;
+      input.value = '';
+
+      try {
+        const response = await fetch(`${this.config.apiBase}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: message,
+            teamId: this.config.teamId
+          })
+        });
+
+        const data = await response.json();
+        if (data.response) {
+          this.addLumenMessage(data.response);
+        } else if (data.error) {
+          this.addLumenMessage(`Erreur: ${data.error}`);
+        }
+      } catch (error) {
+        this.addLumenMessage('Erreur de connexion');
+      }
+    },
+
+    /**
+     * Charge l'intro DSIN pour une épreuve
+     */
+    async loadDsinIntro(epreuveNum) {
+      try {
+        const response = await fetch(`${this.config.apiBase}/api/dsin-intro/${epreuveNum}`);
+        const data = await response.json();
+        if (data.messageBot) {
+          this.addDsinMessage(data.messageBot);
+        }
+      } catch (error) {
+        // Silencieux en production
+      }
+    },
+
+    /**
+     * Navigue vers CTFd (même onglet)
+     */
+    goToCtfd() {
+      // Dériver l'URL de CTFd à partir du hostname actuel
+      let ctfdUrl = this.config.ctfdUrl;
+      
+      if (!ctfdUrl) {
+        const loc = window.location;
+        const hostParts = loc.hostname.split('.');
+        
+        // Ex: hamecon-phishing.challenges.vizyondijital.fr -> ctfd.vizyondijital.fr/challenges
+        if (hostParts.length >= 3 && hostParts[1] === 'challenges') {
+          // Retirer le nom du challenge et 'challenges', ajouter 'ctfd'
+          const domain = hostParts.slice(2).join('.');
+          ctfdUrl = loc.protocol + '//ctfd.' + domain + '/challenges';
+        } else if (hostParts.length >= 2) {
+          // Fallback: remplacer le premier segment par 'ctfd'
+          hostParts[0] = 'ctfd';
+          ctfdUrl = loc.protocol + '//' + hostParts.join('.') + '/challenges';
+        } else {
+          // localhost ou IP
+          ctfdUrl = loc.protocol + '//ctfd.localhost' + (loc.port ? ':' + loc.port : '') + '/challenges';
+        }
+      }
+      
+      // Navigation dans le même onglet
+      window.location.href = ctfdUrl;
+    },
+
+    /**
+     * Affiche un flag dans le canal DSIN
+     */
+    showFlag(flag) {
+      const flagMessage = `🏁 **FLAG OBTENU**\n\n\`${flag}\`\n\nCopiez ce flag et soumettez-le sur CTFd pour valider l'épreuve !`;
+      this.addDsinMessage(flagMessage);
+    },
+
+    /**
+     * Rapporte un succès/échec d'épreuve
+     */
+    async reportEpreuveResult(epreuveNum, success) {
+      if (!this.config.apiBase) {
+        return;
+      }
+      
+      try {
+        const url = `${this.config.apiBase}/api/chatbot`;
+        const payload = {
+          numeroEpreuve: epreuveNum,
+          status: success,
+          teamId: this.config.teamId
+        };
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.messageBot) {
+          if (data.speaker === 'LUMEN') {
+            this.addLumenMessage(data.messageBot);
+          } else if (data.speaker === 'DSIN') {
+            this.addDsinMessage(data.messageBot);
+          }
+        }
+      } catch (error) {
+        // Silencieux en production
+      }
+    }
+  };
+
+  // Exposer globalement
+  window.LumenWidget = LumenWidget;
+})();
+

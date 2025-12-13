@@ -1,0 +1,11 @@
+[2025-12-10 08:00:12] INFO: Service VPN OpenVPN démarré sur port 1194
+[2025-12-10 08:00:15] SUCCESS: Certificats SSL vérifiés et valides
+[2025-12-10 08:15:28] INFO: Nouvelle connexion VPN - Utilisateur: 'pmartin' depuis 82.127.45.230
+[2025-12-10 08:30:42] SUCCESS: Tunnel sécurisé établi - Encryption AES-256-CBC
+[2025-12-10 08:45:55] WARNING: Tentative de connexion avec certificat expiré - Utilisateur: 'ancien_compte'
+[2025-12-10 09:00:18] INFO: Déconnexion VPN - Utilisateur: 'mdurand' - Durée session: 2h 15m
+[2025-12-10 09:15:33] ERROR: Échec d'authentification VPN - Credentials invalides
+[2025-12-10 09:30:47] ALERT: Connexion VPN depuis pays non autorisé - IP: 195.22.34.78 (Russie)
+[2025-12-10 09:45:52] INFO: Renouvellement automatique du certificat serveur VPN
+[2025-12-10 10:00:15] SUCCESS: 47 utilisateurs actuellement connectés via VPN
+

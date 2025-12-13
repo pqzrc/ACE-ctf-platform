@@ -1,127 +1,311 @@
-.PHONY: help setup start stop restart logs build rebuild clean fresh fresh-all status shell test
+.PHONY: help start stop restart rebuild logs logs-all status clean db-reset db-shell import-challenges deploy pull push challenges-start challenges-stop challenges-logs
 
-# Variables
+# ACE CTFd Platform - Makefile (Production)
+# Usage: make <commande>
+
 DOCKER_COMPOSE = docker compose
+DOCKER_COMPOSE_CHALLENGES = docker compose -f docker-compose.challenges.yml
 
 help: ## Afficher l'aide
-	@echo "Commandes disponibles pour CTFd ACE 2025:"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	@echo "ACE CTFd Platform - Commandes disponibles (Production)"
+	@echo "======================================================"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+	@echo ""
 
-setup: ## Créer le fichier .env depuis .env.example
-	@if [ ! -f .env ]; then \
-		cp .env.example .env; \
-		echo "✓ Fichier .env créé"; \
-		echo "⚠ Éditez .env avec vos valeurs (JWT_SECRET, passwords, etc.)"; \
-	else \
-		echo "✓ .env existe déjà"; \
-	fi
+# --- Commandes de base ---
 
-start: ## Démarrer tous les services
-	@echo "Démarrage de CTFd..."
+start: ## Démarrer tous les services (production)
+	@echo "Démarrage de CTFd ACE..."
 	$(DOCKER_COMPOSE) up -d
 	@echo ""
-	@echo "✓ CTFd démarré"
-	@echo "  Interface: http://localhost:8000"
+	@echo "Services démarrés:"
+	@echo "  CTFd:      http://localhost:8000"
 	@echo "  Traefik:   http://localhost:8082"
-	@echo "  Challenge: http://test.challenges.local (ajoutez au /etc/hosts)"
+	@echo "  Challenges: http://localhost:8081"
+	@echo ""
+	@echo "Voir les logs: make logs"
 
 stop: ## Arrêter tous les services
 	$(DOCKER_COMPOSE) down
-	@echo "✓ Services arrêtés"
+	@echo "Services arrêtés"
 
 restart: ## Redémarrer tous les services
 	$(DOCKER_COMPOSE) restart
-	@echo "✓ Services redémarrés"
+	@echo "Services redémarrés"
 
-logs: ## Afficher les logs CTFd
-	$(DOCKER_COMPOSE) logs -f --tail=100 ctfd
+restart-ctfd: ## Redémarrer CTFd uniquement
+	$(DOCKER_COMPOSE) restart ctfd
+	@echo "CTFd redémarré"
 
-logs-all: ## Afficher tous les logs
-	$(DOCKER_COMPOSE) logs -f --tail=50
+# --- Build & Rebuild ---
 
-status: ## Afficher l'état des services
-	@echo "État des services:"
-	@$(DOCKER_COMPOSE) ps
-
-build: ## Reconstruire l'image CTFd (après modification plugins)
-	@echo "Reconstruction de l'image CTFd..."
-	$(DOCKER_COMPOSE) build ctfd
-	@echo "✓ Image reconstruite"
-
-rebuild: ## Reconstruire et redémarrer CTFd
+rebuild: ## Rebuild complet et redémarrage
 	@echo "Reconstruction et redémarrage..."
 	$(DOCKER_COMPOSE) up -d --build ctfd
-	@echo "✓ CTFd reconstruit et redémarré"
+	@echo "Rebuild terminé"
 
-shell: ## Ouvrir un shell dans le conteneur CTFd
-	$(DOCKER_COMPOSE) exec ctfd /bin/bash
+rebuild-challenges: ## Rebuild les challenges
+	@echo "Reconstruction des challenges..."
+	$(DOCKER_COMPOSE) up -d --build challenge_test1 challenge_test2 challenge_test3 challenge_test4 challenge_test5
+	@echo "Challenges reconstruits"
 
-test: ## Tester l'accès aux services
-	@echo "Test des services..."
-	@curl -s http://localhost:8000/healthcheck > /dev/null && echo "✓ CTFd accessible" || echo "✗ CTFd inaccessible"
-	@curl -s http://localhost:8082/api/http/routers > /dev/null && echo "✓ Traefik accessible" || echo "✗ Traefik inaccessible"
+# --- Logs ---
+
+logs: logs-ctfd ## Logs CTFd (par défaut)
+
+logs-ctfd: ## Logs CTFd en temps réel
+	$(DOCKER_COMPOSE) logs -f --tail=100 ctfd
+
+logs-db: ## Logs de la base de données
+	$(DOCKER_COMPOSE) logs -f --tail=100 db
+
+logs-traefik: ## Logs Traefik
+	$(DOCKER_COMPOSE) logs -f --tail=100 traefik
+
+logs-all: ## Tous les logs en temps réel
+	$(DOCKER_COMPOSE) logs -f --tail=50
+
+logs-errors: ## Afficher seulement les erreurs
+	$(DOCKER_COMPOSE) logs --tail=500 | grep -i error
+
+# --- Base de données ---
+
+db-shell: ## Ouvrir un shell MariaDB
+	$(DOCKER_COMPOSE) exec db mysql -u ctfd -p ctfd
+
+db-reset: ## Réinitialiser la base (PERTE DE DONNÉES)
+	@echo "ATTENTION: Réinitialisation de la base CTFd"
+	@echo "Cette action va SUPPRIMER toutes les données."
+	@read -p "Confirmer (yes/no): " confirm; \
+	if [ "$$confirm" = "yes" ]; then \
+		echo "Arrêt de CTFd..."; \
+		$(DOCKER_COMPOSE) stop ctfd; \
+		echo "Suppression de la base..."; \
+		$(DOCKER_COMPOSE) exec db mysql -u root -p$${MYSQL_ROOT_PASSWORD:-changeme} -e "DROP DATABASE IF EXISTS ctfd; CREATE DATABASE ctfd CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"; \
+		echo "Redémarrage de CTFd..."; \
+		$(DOCKER_COMPOSE) start ctfd; \
+		sleep 5; \
+		echo "Base réinitialisée"; \
+	else \
+		echo "Annulé"; \
+	fi
+
+db-backup: ## Backup de la base de données
+	@echo "Création d'un backup..."
+	@mkdir -p ./backups
+	@TIMESTAMP=$$(date +%Y%m%d_%H%M%S); \
+	$(DOCKER_COMPOSE) exec -T db mysqldump -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd > ./backups/ctfd_$$TIMESTAMP.sql; \
+	echo "Backup créé: ./backups/ctfd_$$TIMESTAMP.sql"
+
+db-restore: ## Restaurer un backup (spécifier FILE=backup.sql)
+	@if [ -z "$(FILE)" ]; then \
+		echo "Erreur: spécifiez FILE=backup.sql"; \
+		echo "Exemple: make db-restore FILE=./backups/ctfd_20250101_120000.sql"; \
+		exit 1; \
+	fi
+	@echo "ATTENTION: Restauration du backup $(FILE)"
+	@read -p "Confirmer (yes/no): " confirm; \
+	if [ "$$confirm" = "yes" ]; then \
+		echo "Restauration du backup..."; \
+		cat $(FILE) | $(DOCKER_COMPOSE) exec -T db mysql -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd; \
+		echo "Backup restauré"; \
+	else \
+		echo "Annulé"; \
+	fi
+
+# --- Challenges ---
+
+import-challenges: ## Importer les challenges dans CTFd
+	@echo "Import des challenges dans CTFd"
 	@echo ""
-	@echo "Pour tester le challenge:"
-	@echo "  1. Ajoutez '127.0.0.1 test.challenges.local' au /etc/hosts"
-	@echo "  2. Ouvrez http://test.challenges.local"
+	@if [ -z "$$CTFD_TOKEN" ]; then \
+		echo "Erreur: Variable CTFD_TOKEN non définie"; \
+		echo ""; \
+		echo "Pour obtenir un token:"; \
+		echo "  1. Connectez-vous à CTFd en tant qu'admin"; \
+		echo "  2. Allez dans Settings > Access Tokens"; \
+		echo "  3. Créez un token avec les permissions admin"; \
+		echo "  4. Exportez: export CTFD_TOKEN='votre-token'"; \
+		echo "  5. Relancez: make import-challenges"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Token CTFd: $$CTFD_TOKEN"
+	@echo "URL CTFd: $${CTFD_URL:-http://localhost:8000}"
+	@echo ""
+	@CTFD_URL=$${CTFD_URL:-http://localhost:8000} python3 scripts/import_challenges.py
+	@echo ""
+	@echo "Import terminé"
 
-clean: ## Supprimer tous les conteneurs et volumes (⚠ perte de données)
-	@echo "⚠ ATTENTION: Suppression de toutes les données !"
-	@read -p "Confirmer ? (yes/no): " confirm; \
+list-challenges: ## Lister les challenges disponibles
+	@echo "Challenges disponibles dans ./challenges:"
+	@echo ""
+	@for dir in challenges/*/; do \
+		if [ -f "$$dir/challenge.yml" ]; then \
+			name=$$(basename "$$dir"); \
+			echo "  ✓ $$name"; \
+		fi; \
+	done
+	@echo ""
+	@echo "Pour les importer: make import-challenges"
+
+# --- Gestion des Challenges (Épreuves) ---
+
+challenges-start: ## Démarrer les challenges (épreuves)
+	@echo "Démarrage des challenges ACE..."
+	$(DOCKER_COMPOSE_CHALLENGES) up -d
+	@echo ""
+	@echo "Challenges démarrés:"
+	@echo "  Épreuve 1 (Phishing):    http://epreuve1.localhost:8081"
+	@echo "  Épreuve 2 (Password):    http://epreuve2.localhost:8081"
+	@echo "  Épreuve 3 (Captcha):     http://epreuve3.localhost:8081"
+	@echo "  Épreuve 6 (Logs):        http://epreuve6.localhost:8081"
+	@echo "  Épreuve 8 (Light Out):   http://epreuve8.localhost:8081"
+	@echo "  Épreuve 9 (QR Code):     http://epreuve9.localhost:8081"
+	@echo ""
+	@echo "  Traefik Dashboard:       http://localhost:8082"
+	@echo ""
+	@echo "Note: Ajoutez ces entrées à /etc/hosts:"
+	@echo "  127.0.0.1 epreuve1.localhost epreuve2.localhost epreuve3.localhost epreuve6.localhost epreuve8.localhost epreuve9.localhost"
+
+challenges-stop: ## Arrêter les challenges
+	$(DOCKER_COMPOSE_CHALLENGES) down
+	@echo "Challenges arrêtés"
+
+challenges-restart: ## Redémarrer les challenges
+	$(DOCKER_COMPOSE_CHALLENGES) restart
+	@echo "Challenges redémarrés"
+
+challenges-rebuild: ## Rebuild et redémarrer les challenges
+	@echo "Reconstruction des challenges..."
+	$(DOCKER_COMPOSE_CHALLENGES) up -d --build
+	@echo "Challenges reconstruits et redémarrés"
+
+challenges-logs: ## Logs des challenges
+	$(DOCKER_COMPOSE_CHALLENGES) logs -f --tail=100
+
+challenges-status: ## État des challenges
+	@echo "État des challenges:"
+	@$(DOCKER_COMPOSE_CHALLENGES) ps
+
+# --- Nettoyage ---
+
+clean: ## Supprimer conteneurs et volumes (PERTE DE DONNÉES)
+	@echo "ATTENTION: Suppression de TOUTES les données CTFd"
+	@read -p "Confirmer (yes/no): " confirm; \
 	if [ "$$confirm" = "yes" ]; then \
 		$(DOCKER_COMPOSE) down -v --remove-orphans; \
 		docker volume rm -f ace-ctf-platform_ctfd_db ace-ctf-platform_ctfd_redis ace-ctf-platform_ctfd_uploads ace-ctf-platform_ctfd_logs 2>/dev/null || true; \
-		echo "✓ Nettoyage terminé"; \
+		echo "Nettoyage terminé"; \
 	else \
-		echo "✗ Annulé"; \
+		echo "Annulé"; \
 	fi
 
-fresh: ## Nettoyage complet CTFd + rebuild + redémarrage
-	@echo "⚠ ATTENTION: Fresh start CTFd - Suppression totale des données !"
-	@read -p "Confirmer ? (yes/no): " confirm; \
+fresh: ## Fresh start complet (PERTE TOTALE)
+	@echo "ATTENTION: Fresh start - Suppression TOTALE des données CTFd"
+	@read -p "Confirmer (yes/no): " confirm; \
 	if [ "$$confirm" = "yes" ]; then \
-		echo "→ Arrêt des conteneurs..."; \
+		echo "Arrêt des conteneurs..."; \
 		$(DOCKER_COMPOSE) down -v --remove-orphans 2>/dev/null || true; \
-		echo "→ Suppression des volumes..."; \
+		echo "Suppression des volumes..."; \
 		docker volume rm -f ace-ctf-platform_ctfd_db ace-ctf-platform_ctfd_redis ace-ctf-platform_ctfd_uploads ace-ctf-platform_ctfd_logs 2>/dev/null || true; \
-		echo "→ Vérification..."; \
 		sleep 2; \
-		echo "→ Reconstruction des images..."; \
+		echo "Reconstruction sans cache..."; \
 		$(DOCKER_COMPOSE) build --no-cache ctfd; \
-		echo "→ Démarrage..."; \
+		echo "Démarrage..."; \
 		$(DOCKER_COMPOSE) up -d; \
 		echo ""; \
-		echo "✓ Fresh start terminé !"; \
+		echo "Fresh start terminé"; \
 		echo "  Interface: http://localhost:8000"; \
-		echo "  Logs: make logs"; \
 		echo ""; \
-		echo "⏳ Attendez 30 secondes pour l'initialisation complète"; \
+		echo "Attendez 30 secondes pour l'initialisation"; \
 	else \
-		echo "✗ Annulé"; \
+		echo "Annulé"; \
 	fi
 
-fresh-all: ## Fresh start TOTAL (CTFd + site d'inscription)
-	@echo "⚠ ATTENTION: Fresh start TOTAL - Suppression CTFd + Site d'inscription !"
-	@read -p "Confirmer ? (yes/no): " confirm; \
-	if [ "$$confirm" = "yes" ]; then \
-		echo "→ Arrêt CTFd..."; \
-		$(DOCKER_COMPOSE) down -v --remove-orphans 2>/dev/null || true; \
-		echo "→ Suppression volumes CTFd..."; \
-		docker volume rm -f ace-ctf-platform_ctfd_db ace-ctf-platform_ctfd_redis ace-ctf-platform_ctfd_uploads ace-ctf-platform_ctfd_logs 2>/dev/null || true; \
-		echo "→ Arrêt site d'inscription..."; \
-		cd ../ACE-website && docker compose down -v --remove-orphans 2>/dev/null || true; \
-		echo "→ Suppression volumes site..."; \
-		docker volume rm -f ace-website_postgres_data ace-website_redis_data 2>/dev/null || true; \
-		echo "→ Reconstruction..."; \
-		cd ../ACE-website && docker compose build --no-cache backend && docker compose up -d; \
-		cd ../ACE-ctf-platform && $(DOCKER_COMPOSE) build --no-cache ctfd && $(DOCKER_COMPOSE) up -d; \
-		echo ""; \
-		echo "✓ Fresh start TOTAL terminé !"; \
-		echo "  Site: http://localhost:3000"; \
-		echo "  CTFd: http://localhost:8000"; \
-		echo ""; \
-		echo "⏳ Attendez 30 secondes pour l'initialisation complète"; \
-	else \
-		echo "✗ Annulé"; \
-	fi
+# --- Debug & Info ---
+
+status: ## État des services
+	@echo "État des services:"
+	@$(DOCKER_COMPOSE) ps
+
+test: ## Tester l'accès aux services
+	@echo "Test des services..."
+	@curl -s http://localhost:8000/healthcheck > /dev/null && echo "  CTFd: OK" || echo "  CTFd: FAIL"
+	@curl -s http://localhost:8082/api/http/routers > /dev/null && echo "  Traefik: OK" || echo "  Traefik: FAIL"
+	@curl -s http://localhost:8081 > /dev/null && echo "  Test challenge: OK" || echo "  Test challenge: FAIL"
+
+shell: ## Shell dans le conteneur CTFd
+	$(DOCKER_COMPOSE) exec ctfd /bin/bash
+
+shell-db: ## Shell MariaDB (alias de db-shell)
+	$(DOCKER_COMPOSE) exec db mysql -u ctfd -p ctfd
+
+# --- Déploiement & Git ---
+
+pull: ## Pull les derniers changements et rebuild
+	@echo "Pull des changements depuis Git..."
+	git pull origin deploy-2
+	@echo "Rebuild de CTFd..."
+	$(DOCKER_COMPOSE) up -d --build ctfd
+	@echo "Mise à jour terminée"
+
+push: ## Push les changements vers Git
+	git push origin deploy-2
+	@echo "Push terminé"
+
+deploy: pull ## Déployer la dernière version (alias de pull)
+
+# --- Site d'inscription (ACE Website) ---
+
+website-logs: ## Voir les logs du site d'inscription
+	@cd ../ACE-Website && docker compose logs -f --tail=100 backend
+
+website-restart: ## Redémarrer le site d'inscription
+	@cd ../ACE-Website && docker compose restart backend
+	@echo "Site d'inscription redémarré"
+
+website-status: ## État du site d'inscription
+	@cd ../ACE-Website && docker compose ps
+
+sync-manual: ## Forcer une synchronisation manuelle des équipes
+	@echo "Synchronisation manuelle des équipes..."
+	@curl -X POST http://localhost:8000/admin/registration-sync/manual-sync \
+		-H "Content-Type: application/json" \
+		--cookie-jar /tmp/cookies.txt --cookie /tmp/cookies.txt || true
+	@echo "Synchronisation déclenchée"
+
+# --- Stats & Monitoring ---
+
+stats: ## Statistiques d'utilisation des conteneurs
+	docker stats --no-stream
+
+teams-count: ## Compter les équipes synchronisées
+	$(DOCKER_COMPOSE) exec db mysql -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd -e "SELECT COUNT(*) as total_teams FROM teams;"
+
+users-count: ## Compter les utilisateurs
+	$(DOCKER_COMPOSE) exec db mysql -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd -e "SELECT COUNT(*) as total_users FROM users;"
+
+scoreboard: ## Afficher le scoreboard actuel
+	@echo "Scoreboard CTFd (Top 10):"
+	@$(DOCKER_COMPOSE) exec db mysql -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd -e "SELECT name, score FROM teams ORDER BY score DESC LIMIT 10;"
+
+leaderboard: scoreboard ## Alias de scoreboard
+
+health-check: ## Vérifier la santé du système
+	@echo "Health check complet"
+	@echo "===================="
+	@echo ""
+	@echo "Services Docker:"
+	@$(DOCKER_COMPOSE) ps
+	@echo ""
+	@echo "Tests de connexion:"
+	@curl -s http://localhost:8000/healthcheck > /dev/null && echo "  CTFd: OK" || echo "  CTFd: FAIL"
+	@echo ""
+	@echo "Base de données:"
+	@$(DOCKER_COMPOSE) exec db mysql -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd -e "SELECT COUNT(*) as total_teams FROM teams;" -sN | xargs -I {} echo "  Équipes: {}"
+	@$(DOCKER_COMPOSE) exec db mysql -u ctfd -p$${MYSQL_PASSWORD:-changeme} ctfd -e "SELECT COUNT(*) as total_users FROM users;" -sN | xargs -I {} echo "  Utilisateurs: {}"
+
+.DEFAULT_GOAL := help

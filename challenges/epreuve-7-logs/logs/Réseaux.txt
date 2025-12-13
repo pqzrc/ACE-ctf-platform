@@ -1,0 +1,10 @@
+[2025-12-10 09:00:00] INFO: Monitoring réseau L.U.M.E.N. initialisé
+[2025-12-10 09:00:15] SUCCESS: Tous les switches core opérationnels
+[2025-12-10 09:15:28] WARNING: Latence élevée détectée sur VLAN 50 - 125ms
+[2025-12-10 09:30:42] ALERT: Boucle réseau détectée sur switch SW-BAT-C-02
+[2025-12-10 09:45:55] CRITICAL: Intrusion detectee - Flag ACE - FlagBlaBlaBla
+[2025-12-10 10:00:18] CRITICAL: Saturation de la liaison principale - Utilisation 98%
+[2025-12-10 10:15:33] INFO: Protocole BGP instable - 23 routes flapping
+[2025-12-10 10:30:47] ALERT: Activité réseau anormale sur segment 192.168.75.0/24
+[2025-12-10 10:45:52] WARNING: Trafic broadcast excessif - Source 10.20.30.45
+[2025-12-10 11:00:15] ERROR: Perte de connectivité avec routeur RT-BACKBONE-01 
